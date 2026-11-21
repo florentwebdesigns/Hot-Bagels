@@ -223,11 +223,11 @@
     if (auto) {
       // a short slideshow of the film, then hand over to scrolling
       window.HB_LOCK(true);
-      const steps = [['oven1', 'heat', 2600], ['oven2', 'door', 2600], ['oven3', 'peel', 2600]];
+      const steps = [['oven1', '', 1000], ['oven2', '', 1000], ['oven3', '', 1000]];
       let i = 0;
       const next = () => {
         if (!auto) return;
-        if (i < steps.length) { const [k, c, ms] = steps[i++]; show(k); caps(c); if (intro) intro.style.opacity = i === 1 ? '1' : '0'; setTimeout(next, ms); return; }
+        if (i < steps.length) { const [k, c, ms] = steps[i++]; show(k); caps(c); if (intro) { intro.style.opacity = i < 3 ? '1' : '0'; intro.classList.add('is-on'); } setTimeout(next, ms); return; }
         auto = false; caps(''); heroOn(true); window.HB_LOCK(false); paint();
       };
       const skip = () => { if (!auto) return; auto = false; caps(''); heroOn(true); window.HB_LOCK(false); paint(); };
@@ -289,11 +289,45 @@
      NOTE: the form is not connected to an inbox yet. When the site
      goes online, connect it to a form service so requests reach you. */
   const form = $('[data-cform]'), ticket = $('[data-ticket]'), err = $('[data-cform-err]');
+  /* ---------- order items: a dropdown of the menu (and catering), with quantities ---------- */
+  const rowsEl = $('[data-orows]');
+  const groups = [...D.menu.map((c) => [c.title, c.items.map((i) => i.name)]), ['Catering', D.catering.map((c) => c.name)]];
+  const optionsHTML = '<option value="">Choose from the menu…</option>' + groups.map(([g, items]) => `<optgroup label="${esc(g)}">${items.map((n) => `<option>${esc(n)}</option>`).join('')}</optgroup>`).join('');
+  let rowN = 0;
+  const addRow = (value = '') => {
+    const id = 'oi-' + (++rowN);
+    const row = document.createElement('div');
+    row.className = 'orow';
+    row.innerHTML = `<label class="sr" for="${id}">Menu item</label><select id="${id}" name="item">${optionsHTML}</select>
+      <label class="sr" for="${id}-q">Quantity</label><input id="${id}-q" name="qty" type="number" min="1" max="200" value="1" inputmode="numeric">
+      <button type="button" class="orow__x" aria-label="Remove this item">×</button>`;
+    const sel = row.querySelector('select');
+    if (value) { const opt = [...sel.options].find((o) => o.value === value || o.text === value); if (opt) sel.value = opt.value; else { sel.add(new Option(value, value, true, true)); } }
+    row.querySelector('.orow__x').addEventListener('click', () => { if (rowsEl.children.length > 1) row.remove(); else { sel.value = ''; } });
+    rowsEl.appendChild(row);
+    return sel;
+  };
+  addRow();
+  $('[data-oadd]').addEventListener('click', () => addRow().focus());
+  // "Add to my order" on the 3D menu drops that item into the form
+  window.HB_ADD_TO_ORDER = (name) => {
+    const empty = [...rowsEl.querySelectorAll('select')].find((s2) => !s2.value);
+    const sel = empty || addRow();
+    const opt = [...sel.options].find((o) => o.text === name) || [...sel.options].find((o) => o.text.toLowerCase().includes(name.toLowerCase().split(' ')[0]));
+    if (opt) sel.value = opt.value; else sel.add(new Option(name, name, true, true));
+    form.hidden = false; ticket.hidden = true;
+    $('[data-oitems]').classList.remove('is-bad');
+  };
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-m-add]');
+    if (!a) return;
+    window.HB_ADD_TO_ORDER(a.dataset.item || '');
+  });
   const dateIn = $('#cf-date');
   if (dateIn) dateIn.min = new Date().toISOString().slice(0, 10);
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const req = ['name', 'phone', 'email', 'date', 'headcount', 'want'];
+    const req = ['name', 'phone', 'email', 'date'];
     let bad = [];
     req.forEach((n) => {
       const el = form.elements[n];
@@ -301,6 +335,9 @@
       el.closest('.field').classList.toggle('is-bad', !ok);
       if (!ok) bad.push(el);
     });
+    const items = [...rowsEl.querySelectorAll('.orow')].map((r) => [r.querySelector('select').value, Math.max(1, +r.querySelector('input').value || 1)]).filter(([n]) => n);
+    $('[data-oitems]').classList.toggle('is-bad', !items.length);
+    if (!items.length) bad.push(rowsEl.querySelector('select'));
     if (bad.length) {
       err.textContent = 'Please fill in the highlighted fields so we can reach you.';
       bad[0].focus();
@@ -312,8 +349,9 @@
     const rows = [
       ['Name', v('name')], ['Phone', v('phone')], ['Email', v('email')],
       ['Date', d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })],
-      ['Guests', v('headcount')], ['Order', v('want')],
     ];
+    if (v('headcount')) rows.push(['Guests', v('headcount')]);
+    items.forEach(([n, q], i) => rows.push([i ? '' : 'Order', `${q} × ${n}`]));
     if (v('notes')) rows.push(['Notes', v('notes')]);
     $('[data-t-rows]').innerHTML = rows.map(([k, val]) => `<dt>${k}</dt><dd>${esc(val)}</dd>`).join('');
     $('[data-t-no]').textContent = 'No. ' + String(Math.floor(1000 + Math.random() * 9000));
@@ -322,7 +360,7 @@
     ticket.focus({ preventScroll: true });
   });
   form.addEventListener('input', (e) => e.target.closest('.field')?.classList.remove('is-bad'));
-  $('[data-t-new]').addEventListener('click', () => { form.reset(); ticket.hidden = true; form.hidden = false; });
+  $('[data-t-new]').addEventListener('click', () => { form.reset(); rowsEl.innerHTML = ''; addRow(); ticket.hidden = true; form.hidden = false; });
 
   /* ---------- Tell a neighbor (word of mouth) ---------- */
   const shareBtn = $('[data-share]'), toast = $('[data-share-toast]');
@@ -343,6 +381,28 @@
     const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
     if (!local && /claude|anthropic|usercontent/i.test(location.hostname)) useStatic();
     if (params.get('map') === 'static') useStatic();
+  }
+
+  /* ---------- the little bagels on the board drift a touch with scroll ---------- */
+  if (!RM) {
+    const bagels = $$('.bg__bagel'); const sp = [-0.05, 0.08, -0.03, 0.06];
+    let tick = false;
+    addEventListener('scroll', () => { if (tick) return; tick = true; requestAnimationFrame(() => { tick = false; const y = scrollY; bagels.forEach((b, i) => b.style.setProperty('--py', (y * sp[i] % 400).toFixed(1))); }); }, { passive: true });
+  }
+
+  /* ---------- 3D menu (same build as the Crepe Craft menu), loaded once the oven film is over ---------- */
+  const canMenu = (() => {
+    if (params.get('menu') === 'off' || (navigator.connection && navigator.connection.saveData)) return false;
+    try { return !!document.createElement('canvas').getContext('webgl2'); } catch (e) { return false; }
+  })();
+  if (canMenu) {
+    root.classList.add('m3d-on');
+    const startMenu = () => import('./menu-scene.js')
+      .then((m) => m.boot({ reduce: RM }))
+      .catch((e) => { console.warn('3D menu unavailable', e); root.classList.remove('m3d-on'); if (ST) ST.refresh(); });
+    const afterFilm = () => (window.requestIdleCallback ? requestIdleCallback(startMenu, { timeout: 2500 }) : setTimeout(startMenu, 300));
+    const go = () => setTimeout(afterFilm, mode === 'live' && scrollY < 40 ? 3800 : 600);
+    if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
   }
 
   $('[data-year]').textContent = new Date().getFullYear();

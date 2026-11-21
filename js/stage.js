@@ -6,18 +6,18 @@
 /* ---------- Everything you might want to tune lives here ---------- */
 window.INTRO_CONFIG = {
   // the oven film plays by itself, this many seconds long
-  filmSeconds: 5,
+  filmSeconds: 3,
   // scroll length of the flavor chapters and the slicing finale, in screen heights (vh)
   scroll: {
-    desktop: { chapters: 165, finale: 95 },
-    phone: { chapters: 120, finale: 75 },
+    desktop: { chapters: 165, finale: 55 },
+    phone: { chapters: 120, finale: 45 },
   },
   // where each beat of "The Oven Door Opens" happens, as a share of the film (0–1)
-  beats: { darkness: 0.08, heatEnd: 0.25, doorEnd: 0.47, peelStart: 0.5, peelEnd: 0.78, heroLines: [0.84, 0.88, 0.92], heroButtons: 0.95 },
+  beats: { darkness: 0.03, heatEnd: 0.2, doorEnd: 0.4, peelStart: 0.42, peelEnd: 0.74, heroLines: [0.8, 0.85, 0.9], heroButtons: 0.93 },
   glow: { deep: '#4a0a02', amber: '#ff8a2a' },
   bloomStrength: 0.6,
   bloomThreshold: 0.92,
-  particles: { desktop: 400, phone: 150 },
+  particles: { desktop: 260, phone: 120 },
   seedsScale: { desktop: 1, phone: 0.42 },
   maxPixelRatio: { desktop: 2, phone: 1.5 },
   frameBudgetMs: 22,
@@ -845,7 +845,7 @@ window.INTRO_CONFIG = {
   await yieldNow();
   /* ---------------- film look ---------------- */
   const post = window.HB_POST(THREE, A, renderer, scene, camera, {
-    msaa: PHONE ? 0 : 4, dof: !PHONE, particles: CFG.particles[TIER],
+    msaa: PHONE ? 0 : 2, dof: !PHONE, particles: CFG.particles[TIER],
     bloomStrength: CFG.bloomStrength, bloomThreshold: CFG.bloomThreshold,
   });
 
@@ -899,11 +899,9 @@ window.INTRO_CONFIG = {
     const sp = stopPose(), fv = narrow() ? 44 : 32;
     return [
       [0.0, sp[0].clone().add(new V3(0.25, 0, 0)), sp[1].clone(), fv],
-      [0.14, new V3(2.6, 1.45, 4.5), new V3(0, 0.32, 0), fv],
-      [0.38, new V3(1.9, 1.75, 4.25), new V3(0, 0.3, 0), fv],
-      [0.54, ...far(new V3(0, 5.6, 7.0), new V3(0, 0.2, 0)), fv],
-      [0.72, ...far(new V3(-0.6, 5.0, 6.0), new V3(-0.5, 0.25, 0)), fv],
-      [0.93, ...far(new V3(0, 11.2, 3.0), new V3(0, 0, 0.2)), fv],
+      [0.3, new V3(2.3, 1.6, 4.4), new V3(0, 0.3, 0), fv],
+      [0.62, ...far(new V3(0, 6.4, 6.4), new V3(0, 0.2, 0)), fv],
+      [0.9, ...far(new V3(0, 11.2, 3.0), new V3(0, 0, 0.2)), fv],
       [1.0, ...far(new V3(0, 11.2, 3.0), new V3(0, 0, 0.2)), fv],
     ];
   };
@@ -934,6 +932,16 @@ window.INTRO_CONFIG = {
     if (!filmOn) return;
     filmT = 1; filmOn = false; lock(false);
     stageEl.classList.add('is-film-done');
+    if (post.bokeh && tier < 1) post.bokeh.enabled = true;
+    afterFilm();
+  };
+  // heavy one-off work waits until the film is over, so the film itself never stutters
+  const afterQueue = [];
+  let afterStarted = false;
+  const afterFilm = () => {
+    if (afterStarted) return; afterStarted = true;
+    const next = () => { const fn2 = afterQueue.shift(); if (!fn2) return; fn2(); setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(next, { timeout: 800 }) : next()), 120); };
+    setTimeout(next, 150);
   };
   // trying to scroll during the film fast-forwards it instead
   const hurry = () => { if (filmOn) ffwd = 4; };
@@ -1039,46 +1047,32 @@ window.INTRO_CONFIG = {
     C.blob.scale.setScalar(1 + Math.max(0, by) * 0.35);
     C.blob.material.opacity = 0.85 / (1 + Math.max(0, by) * 2.2);
 
-    // ---- finale: slice → open → spread → name ----
-    const P = 0.64 + q * 0.36;
+    // ---- finale (kept short): one clean slice → open → schmear → name ----
     if (p >= F2 && cream) {
       const top = C.top, bot = C.bot;
-      const sl = range(P, 0.665, 0.78);
-      const op = ease(range(P, 0.78, 0.84));
+      const sl = range(q, 0.0, 0.34);
+      const op = ease(range(q, 0.34, 0.54));
       const sep = sstep(0.85, 1, sl) * 0.035;
-      top.position.set(lerp(0, 1.78, op), sep + Math.sin(op * Math.PI) * 1.05 + lerp(0, 0.19, op), lerp(0, 0.08, op));
+      top.position.set(lerp(0, 1.78, op), sep + Math.sin(op * Math.PI) * 0.8 + lerp(0, 0.19, op), lerp(0, 0.08, op));
       top.rotation.set(0, lerp(0, -0.35, op), lerp(0, -Math.PI, op));
       bot.position.set(lerp(0, -1.72, op), 0, lerp(0, -0.05, op));
       bot.rotation.set(0, lerp(0, 0.25, op), 0);
       C.blob.scale.set(1 + op * 0.9, 1, 1);
       breadKnife.visible = sl > 0 && op < 1;
       if (breadKnife.visible) {
-        const enter = ease(range(sl, 0, 0.32)), through = range(sl, 0.3, 1), exit = ease(op);
-        breadKnife.position.set(lerp(9, 1.95, enter) + Math.sin(through * Math.PI * 7) * 0.32 * sstep(0, 0.1, through) + exit * 6, BASE + exit * 1.8, lerp(1.95, -1.95, ease(through)));
+        const enter = ease(range(sl, 0, 0.3)), through = range(sl, 0.25, 1), exit = ease(op);
+        breadKnife.position.set(lerp(9, 1.95, enter) + exit * 6, BASE + exit * 1.8, lerp(1.95, -1.95, ease(through)));
         breadKnife.rotation.set(0, 0, exit * 0.3);
       }
-      const sp = range(P, 0.84, 0.92), fin = range(P, 0.92, 0.985);
-      butterKnife.visible = sp > 0 && fin < 1;
-      let kx = -10;
-      if (butterKnife.visible) {
-        const xA = lerp(-3.6, 0.05, ease(sp)), xB = lerp(0.05, 11, ease(fin));
-        kx = sp < 1 ? xA : xB;
-        const yBase = kx > 0.05 ? BASE + 0.19 + 0.07 : BASE + 0.07;
-        const inZ = Math.sin((sp + fin) * Math.PI * 4) * 0.55;
-        const lift = (1 - sstep(0, 0.08, sp)) * 1.2;
-        butterKnife.position.set(kx, yBase + lift + sstep(3.4, 6, kx) * 1.6, inZ + 0.25);
-        butterKnife.rotation.set(-0.32, (sp - 0.5) * 0.4, -0.06);
-        butterKnife.userData.dab.scale.set(0.9 * (1 - ease(sp) * 0.7), 0.22, 1.6 * (1 - ease(sp) * 0.5));
-      }
-      creamPlane.constant = sp > 0 ? (fin >= 1 ? 50 : kx + 0.25) : -50;
-      steamAmt = sl > 0.9 ? 0.75 * (1 - fin * 0.6) : 0.25;
-      let reveal = 0;
-      if (fin > 0 && butterKnife.visible) { projV.copy(butterKnife.position).project(camera); reveal = clamp((projV.x + 1) / 2); }
-      else if (fin >= 1) reveal = 1;
+      butterKnife.visible = false;
+      const sp = ease(range(q, 0.46, 0.68));
+      creamPlane.constant = sp > 0 ? lerp(-3, 3, sp) : -50;
+      steamAmt = sl > 0.9 ? 0.6 * (1 - sp * 0.5) : 0.25;
+      const reveal = ease(range(q, 0.64, 0.88));
       wordIn.style.clipPath = `inset(-10% ${(100 - reveal * 104).toFixed(2)}% -10% 0)`;
-      darkEl.style.opacity = (0.42 * sstep(0.9, 0.99, P)).toFixed(3);
-      setCap('slice', sl > 0.05 && sl < 0.95);
-      setCap('spread', sp > 0.05 && sp < 0.95);
+      darkEl.style.opacity = (0.42 * sstep(0.62, 0.86, q)).toFixed(3);
+      setCap('slice', sl > 0.05 && sp < 0.9);
+      setCap('spread', false);
       tmpV.set(lerp(0, -1.72, op), BASE + 0.1, 0);
     } else {
       C.top.position.set(0, 0, 0); C.top.rotation.set(0, 0, 0);
@@ -1128,10 +1122,13 @@ window.INTRO_CONFIG = {
 
     // ---- overlay text ----
     progEl.style.transform = `scaleX(${(filmOn ? f : p).toFixed(4)})`;
-    introEl.style.opacity = String(1 - sstep(B.darkness * 0.6, B.darkness * 1.2, f));
-    setCap('heat', filmOn && f > B.darkness + 0.02 && f < B.heatEnd - 0.01);
-    setCap('door', filmOn && f > B.heatEnd + 0.02 && f < B.doorEnd);
-    setCap('peel', filmOn && f > B.peelStart + 0.02 && f < B.peelEnd - 0.02);
+    // the FD title card holds through the film, then hands over to the headline
+    const introOut = filmOn ? sstep(B.peelEnd - 0.1, B.peelEnd, f) : 1;
+    introEl.style.opacity = (1 - introOut).toFixed(3);
+    introEl.style.transform = `translate3d(0, ${(-introOut * 18).toFixed(1)}px, 0)`;
+    introEl.style.filter = introOut > 0.01 ? `blur(${(introOut * 8).toFixed(1)}px)` : '';
+    toggle(introEl, 'is-on', filmOn && f > 0.005);
+    setCap('heat', false); setCap('door', false); setCap('peel', false);
     const heroOn = (filmOn && f > B.heroLines[0] - 0.01) || (!filmOn && c < 0.08);
     toggle(heroEl, 'is-on', heroOn);
     heroLines.forEach((ln, i) => toggle(ln, 'is-in', heroOn && (!filmOn || f >= B.heroLines[i])));
@@ -1164,10 +1161,10 @@ window.INTRO_CONFIG = {
     const dtm = now - last;
     update(now);
     post.render();
-    if (running && dtm < 250 && now - t0 > 6500) {
-      if (warm < 30) { warm++; return; }
+    if (running && dtm < 250 && now - t0 > 1200) {
+      if (warm < 12) { warm++; return; }
       ft += dtm; fn++;
-      if (fn >= 60) { if (ft / fn > CFG.frameBudgetMs && tier < 4) dropTier(); ft = 0; fn = 0; }
+      if (fn >= 30) { if (ft / fn > CFG.frameBudgetMs && tier < 4) dropTier(); ft = 0; fn = 0; }
     }
   };
 
@@ -1177,30 +1174,18 @@ window.INTRO_CONFIG = {
   update(performance.now());
   post.render();
   stageEl.classList.add('is-lit', 'is-live');
+  // depth of field is expensive; the short film looks the same without it
+  if (post.bokeh) post.bokeh.enabled = false;
   // if someone already scrolled past the intro (or reloaded mid-page), skip the film
   if (window.scrollY > stageEl.offsetTop + 40) finishFilm(); else lock(true);
   darkEl.style.opacity = '0';
-  setTimeout(() => { running = true; }, 1000);
+  setTimeout(() => { running = true; }, 150);
   requestAnimationFrame(loop);
 
   const idle = window.requestIdleCallback || ((fn2) => setTimeout(fn2, 300));
   const later = (fn2, ms) => setTimeout(() => idle(fn2, { timeout: 2000 }), ms);
-  // real studio light for reflections on the crust and steel (Poly Haven HDRI, desktop only)
-  if (!PHONE) later(async () => {
-    try {
-      const { RGBELoader } = await import('three/addons/loaders/RGBELoader.js');
-      new RGBELoader().load('assets/pbr/studio_1k.hdr', (hdr) => {
-        hdr.mapping = THREE.EquirectangularReflectionMapping;
-        const env = pmrem.fromEquirectangular(hdr).texture;
-        scene.environment = env;
-        scene.environmentRotation.set(0, 2.2, 0);
-        hdr.dispose();
-      }, undefined, () => { /* keep the built-in studio light */ });
-    } catch (e) { /* keep the built-in studio */ }
-  }, 3200);
-  later(() => buildFlavor('sesame'), 900);
-  later(() => buildFlavor('cinnamon'), 1700);
-  later(() => { buildSlicing(); try { renderer.compile(scene, camera); } catch (e) { /* ok */ } }, 2500);
+  afterQueue.push(() => buildFlavor('sesame'), () => buildFlavor('cinnamon'), () => { buildSlicing(); try { renderer.compile(scene, camera); } catch (e) { /* ok */ } });
+  if (!filmOn) afterFilm();
 
   /* ---------------- more live bagels down the page (desktop only) ---------------- */
   const minis = [];
@@ -1221,7 +1206,7 @@ window.INTRO_CONFIG = {
     const cm = new THREE.PerspectiveCamera(opts.fov || 28, 1, 0.1, 60);
     const k = new THREE.SpotLight(0xffd0a0, opts.key || 130, 30, 0.6, 0.9, 1.4);
     k.position.set(3, 8.5, 5); k.target.position.set(0, 1, 0);
-    k.castShadow = true; k.shadow.mapSize.set(2048, 2048); k.shadow.radius = 9; k.shadow.bias = -0.0003; k.shadow.normalBias = 0.02;
+    k.castShadow = true; k.shadow.mapSize.set(1024, 1024); k.shadow.radius = 9; k.shadow.bias = -0.0003; k.shadow.normalBias = 0.02;
     sc.add(k, k.target);
     const rm = new THREE.DirectionalLight(0xff9a52, 3.4); rm.position.set(-5, 3.5, -4); sc.add(rm);
     const rm2 = new THREE.DirectionalLight(0xffc68a, 1.6); rm2.position.set(5, 2, -5); sc.add(rm2);
@@ -1299,7 +1284,7 @@ window.INTRO_CONFIG = {
     };
     requestAnimationFrame(miniLoop);
   };
-  if (!PHONE) later(buildMinis, 4200);
+  if (!PHONE) afterQueue.push(() => later(buildMinis, 600));
 
   /* ---------------- hooks for the still-image script and QA ---------------- */
   window.HB3D = {
