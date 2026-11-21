@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Springfield Hot Bagels</title>
+<meta name="description" content="Springfield Hot Bagels at 207 Morris Avenue, Springfield, NJ. Fresh bagels every morning, breakfast and egg sandwiches, deli sandwiches, wraps, homemade soups, coffee, baked goods and catering. Order online or call (973) 379-5100.">
+<meta name="theme-color" content="#121010">
+<meta property="og:title" content="Springfield Hot Bagels · Springfield, NJ">
+<meta property="og:description" content="Fresh out of the oven, every morning. 207 Morris Avenue, Springfield, NJ.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/hero.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='17' rx='14' ry='11' fill='%23B5733A'/%3E%3Cellipse cx='16' cy='15' rx='13' ry='9.5' fill='%23D9B26B'/%3E%3Cellipse cx='16' cy='15.5' rx='4.2' ry='2.8' fill='%23121010'/%3E%3C/svg%3E">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" as="image" href="assets/oven-1.avif" type="image/avif" fetchpriority="high">
+<link rel="stylesheet" href="css/styles.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Bakery",
+  "name": "Springfield Hot Bagels",
+  "telephone": "+1-973-379-5100",
+  "url": "https://springfieldhotbagels.com/",
+  "servesCuisine": ["Bagels", "Breakfast", "Deli", "Coffee"],
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "207 Morris Avenue",
+    "addressLocality": "Springfield",
+    "addressRegion": "NJ",
+    "postalCode": "07081",
+    "addressCountry": "US"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Hand-drawn icons -->
+<svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-bagel" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 25.5c-.6-7.4 8-12.8 18.3-12.9 10.6-.1 19 5.4 18.7 12.6-.3 7-8.8 11.1-18.6 11.2C13.6 36.5 6 32.7 5.5 25.5z"/><path d="M18.4 24.6c1.4-2 9.6-2.2 11.2.1 1.2 1.7-3 3.1-5.8 3-3 0-6.6-1.3-5.4-3.1z"/><path d="M7 29c3.6 4.3 10.6 6.4 17.8 6.3 7.4-.1 13.7-2.4 16.6-6.6"/></g><g fill="currentColor"><ellipse cx="13" cy="20" rx="1.1" ry=".6" transform="rotate(-20 13 20)"/><ellipse cx="34" cy="18.5" rx="1.1" ry=".6" transform="rotate(25 34 18.5)"/><ellipse cx="22" cy="17" rx="1.1" ry=".6"/><ellipse cx="37.5" cy="25" rx="1.1" ry=".6" transform="rotate(60 37.5 25)"/><ellipse cx="11" cy="26.5" rx="1.1" ry=".6" transform="rotate(-50 11 26.5)"/><ellipse cx="28.5" cy="31" rx="1.1" ry=".6" transform="rotate(10 28.5 31)"/></g></symbol>
+    <symbol id="i-spread" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 24.5h22.5l-2 13.2c-.2 1.3-1.3 2.2-2.6 2.2H13.6c-1.3 0-2.4-.9-2.6-2.2z"/><path d="M8 24.6c0-2.2 5.3-3.8 12.2-3.8s12.3 1.6 12.3 3.8"/><path d="M14.5 21.4c1.6-2.4 4.3-3.4 6.6-2.5 1.7.7 3.3.1 4.6-1.2"/><path d="M28 18.5 41.4 6.8c.8-.7 2-.6 2.6.2.6.8.4 1.9-.4 2.5L30.4 20.6"/></g></symbol>
+    <symbol id="i-fish" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 24.2c5-6.3 12.2-9.2 19.6-8.6 5.6.5 9.8 3.4 12.6 8.4-2.9 5-7.2 7.8-12.8 8.2C18 32.8 11 30.2 6 24.2z"/><path d="M38.2 24c1.6-3.1 3.5-5 5.6-5.9-.4 3.9-.4 7.9.1 11.8-2.1-1-4.1-3-5.7-5.9z"/><path d="M15 20.5c1.3 2.2 1.4 5 .2 7.4M21 18.6c1.6 3.6 1.6 7.4 0 11M27 18.2c1.4 3.9 1.3 7.8-.3 11.6"/><circle cx="10.6" cy="22.6" r=".9" fill="currentColor"/></g></symbol>
+    <symbol id="i-egg" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 26.4c-2.4-4.7 1.4-10.5 7.6-11.6 3.2-.6 5.2-3.5 9.4-3.6 5.4-.2 9.1 3.4 10.2 6.9 4.7.6 7.6 4.8 5.6 9.2-2 4.6-7.5 5.1-11.3 4.3-3.6 3.5-9.6 4.9-14.4 2.6-3.2-1.5-5.6-4.4-7.1-7.8z"/><path d="M27.7 18.4c3.2.2 5.6 2.6 5.4 5.6-.2 3.1-3.1 5.3-6.4 5-3.3-.3-5.6-2.9-5.2-5.9.4-2.8 3.1-4.9 6.2-4.7z"/><path d="M24.6 22.2c.8-1.2 2-1.7 3.2-1.5"/></g></symbol>
+    <symbol id="i-sandwich" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 19.6c0-5.4 7.8-8.6 17.6-8.6s17.4 3.2 17.4 8.6c0 1.2-.9 2-2.1 2H8.6c-1.2 0-2.1-.8-2.1-2z"/><path d="M6 25.4c2.4-1.8 4.4 1.3 6.8-.4 2.5-1.8 4.4 1.4 7-.4 2.5-1.7 4.4 1.4 7-.3 2.5-1.7 4.4 1.3 7-.3 2.4-1.5 4.4 1.1 6.8-.2"/><path d="M8 29.4h32"/><path d="M8.2 33.2h31.6c.6 0 1 .5 1 1.1-.4 2.6-2.6 4.3-5.2 4.3H12.4c-2.6 0-4.8-1.7-5.2-4.3 0-.6.4-1.1 1-1.1z"/><path d="M15 15.4h.01M23.4 14.2h.01M31.8 15.6h.01"/></g></symbol>
+    <symbol id="i-wrap" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 34.6 31.6 9.3c2.2-2.6 6.2-2.8 8.5-.4 2.3 2.4 2 6.3-.6 8.4L14.3 38.4c-1.6 1.3-3.9 1.1-5.2-.4-.9-1-1-2.4-.4-3.4z"/><path d="M29.4 12c2.4.3 4.6 2.4 4.9 4.9M33.6 8.4c1.6 1.4 2.4 3.4 2.2 5.6"/><path d="M20.8 22.2 27.6 29M16.8 27l6.4 6.4"/></g></symbol>
+    <symbol id="i-soup" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 23.4h35.2c-.4 8.6-7.6 14.6-17.6 14.6S6.8 32 6.4 23.4z"/><path d="M17.4 38.4h13.2"/><path d="M17.4 18.6c-1.8-2.4 1.6-3.6 0-6.2M24 18.6c-1.8-2.4 1.6-3.6 0-6.2M30.6 18.6c-1.8-2.4 1.6-3.6 0-6.2"/><path d="M36.2 23.4 44 11.6"/></g></symbol>
+    <symbol id="i-coffee" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.6 15.6h20.8l-2.6 24c-.1 1-1 1.8-2 1.8H17.2c-1 0-1.9-.8-2-1.8z"/><path d="M11.2 11.4h23.6l-1.4 4.2H12.6z"/><path d="M14.2 11.4c.6-2.4 2.4-3.6 4.6-3.6h8.4c2.2 0 4 1.2 4.6 3.6"/><path d="M14.3 23.2h17.4l-1 9.4H15.3z"/></g></symbol>
+    <symbol id="i-pastry" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.4 25.2c-.6-7.4 5.8-12.6 13.6-12.6s14.2 5.2 13.6 12.6c-2.4 1.6-5 .8-6.8 2.6-2 2-4.4 2.8-6.8 2.8s-4.8-.8-6.8-2.8c-1.8-1.8-4.4-1-6.8-2.6z"/><path d="M12.2 28.4 14.6 38c.2.9 1 1.5 1.9 1.5h15c.9 0 1.7-.6 1.9-1.5l2.4-9.6"/><path d="M19 30.4 20 39.4M24 31v8.4M29 30.4l-1 9"/><path d="M18.6 18.2c1.6-.8 3.4-1 5.2-.4"/></g></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" fill="currentColor"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21.5s-7-6.2-7-11.6A7 7 0 0 1 19 9.9c0 5.4-7 11.6-7 11.6z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ NAV ============ -->
+<header class="nav is-dark" id="nav">
+  <a class="nav__brand" href="#top" aria-label="Springfield Hot Bagels, back to top">
+    <span class="nav__mark" aria-hidden="true"></span>
+    <span class="nav__name">Springfield <em>Hot Bagels</em></span>
+  </a>
+  <nav class="nav__links" aria-label="Sections">
+    <a href="#menu">Menu</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#catering">Catering</a>
+    <a href="#visit">Visit</a>
+  </nav>
+  <span class="pill pill--nav" data-status-pill><i></i><span>Checking hours…</span></span>
+  <a class="btn btn--sm btn--line nav__call" href="tel:+19733795100"><svg class="ico"><use href="#i-phone"/></svg><span>Call</span></a>
+  <a class="btn btn--sm btn--crust nav__order" href="https://springfieldhotbagels.com/" target="_blank" rel="noopener">Order online</a>
+</header>
+
+<!-- ============ 1. 3D OPENING ============ -->
+<section class="stage" id="top" data-stage aria-label="A short film: a bakery oven heats up, the door drops open, and a fresh everything bagel slides out on a wooden peel. Then the bagel turns into each of our flavors.">
+  <div class="stage__pin">
+    <canvas class="stage__canvas" data-stage-canvas aria-hidden="true"></canvas>
+    <div class="stage__still" data-stage-still aria-hidden="true">
+      <picture data-still="oven1" class="is-on"><source srcset="assets/oven-1.avif" type="image/avif"><img src="assets/oven-1.webp" alt="" width="1600" height="1000" fetchpriority="high"></picture>
+      <picture data-still="oven2"><source data-srcset="assets/oven-2.avif" type="image/avif"><img data-src="assets/oven-2.webp" alt="" width="1600" height="1000"></picture>
+      <picture data-still="oven3"><source data-srcset="assets/oven-3.avif" type="image/avif"><img data-src="assets/oven-3.webp" alt="" width="1600" height="1000"></picture>
+      <picture data-still="everything"><source data-srcset="assets/still-everything.avif" type="image/avif"><img data-src="assets/still-everything.webp" alt="" width="1400" height="1400"></picture>
+      <picture data-still="sesame"><source data-srcset="assets/still-sesame.avif" type="image/avif"><img data-src="assets/still-sesame.webp" alt="" width="1400" height="1400"></picture>
+      <picture data-still="cinnamon"><source data-srcset="assets/still-cinnamon.avif" type="image/avif"><img data-src="assets/still-cinnamon.webp" alt="" width="1400" height="1400"></picture>
+    </div>
+    <div class="stage__shade" aria-hidden="true"></div>
+    <div class="stage__dark" data-stage-dark aria-hidden="true"></div>
+
+    <div class="stage__progress" aria-hidden="true"><i data-stage-progress></i></div>
+    <a class="stage__skip" href="#hero" data-skip>Skip intro <svg class="ico"><use href="#i-arrow"/></svg></a>
+    <button class="stage__sound" type="button" data-sound aria-pressed="false"><i aria-hidden="true"></i><span>Sound off</span></button>
+
+    <div class="stage__intro" data-intro>
+      <h1 class="stage__kicker"><span>Springfield Hot Bagels</span><span class="dot" aria-hidden="true">·</span><span>207 Morris Ave</span></h1>
+      <div class="stage__cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+    </div>
+
+    <div class="stage__captions" aria-live="polite">
+      <div class="cap cap--small" data-cap="heat"><span class="cap__num">Preheating</span></div>
+      <div class="cap cap--small" data-cap="door"><span class="cap__num">The door drops</span></div>
+      <div class="cap cap--small" data-cap="peel"><span class="cap__num">Fresh off the peel</span></div>
+      <div class="cap" data-cap="0"><span class="cap__num">01 / 03</span><h2 class="cap__name">Everything</h2><p class="cap__line">Sesame, poppy, onion, garlic and salt, all on one crust.</p></div>
+      <div class="cap" data-cap="1"><span class="cap__num">02 / 03</span><h2 class="cap__name">Sesame</h2><p class="cap__line">Toasted sesame on a glossy, golden crust.</p></div>
+      <div class="cap" data-cap="2"><span class="cap__num">03 / 03</span><h2 class="cap__name">Cinnamon Raisin</h2><p class="cap__line">A sweet cinnamon swirl, studded with raisins.</p></div>
+      <div class="cap cap--small" data-cap="slice"><span class="cap__num">Sliced warm</span></div>
+      <div class="cap cap--small" data-cap="spread"><span class="cap__num">Schmeared to order</span></div>
+    </div>
+
+    <div class="stage__hero" data-stage-hero>
+      <p class="stage__hero-kicker">Springfield, NJ · 207 Morris Ave</p>
+      <p class="stage__h" role="heading" aria-level="2"><span class="ln"><span>Fresh out of</span></span><span class="ln"><span>the oven, <em>every</em></span></span><span class="ln"><span><em>morning.</em></span></span></p>
+      <div class="stage__ctas">
+        <a class="btn btn--crust" href="https://springfieldhotbagels.com/" target="_blank" rel="noopener">Order online <svg class="ico"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn--line btn--light" href="tel:+19733795100"><svg class="ico"><use href="#i-phone"/></svg>Call (973) 379-5100</a>
+      </div>
+      <p class="stage__hint" aria-hidden="true"><i></i>Scroll for the bagels</p>
+    </div>
+
+    <div class="stage__word" data-word aria-hidden="true">
+      <span class="stage__word-in" data-word-in>Springfield <em>Hot Bagels</em></span>
+    </div>
+
+    <div class="stage__tabs is-away" role="tablist" aria-label="Bagel flavors" data-tabs>
+      <button type="button" role="tab" data-tab="0"><b>01</b> Everything</button>
+      <button type="button" role="tab" data-tab="1"><b>02</b> Sesame</button>
+      <button type="button" role="tab" data-tab="2"><b>03</b> Cinnamon Raisin</button>
+    </div>
+  </div>
+</section>
+
+<main id="main">
+
+<!-- ============ 2. HERO ============ -->
+<section class="hero" id="hero" tabindex="-1" aria-labelledby="hero-title">
+  <div class="hero__copy">
+    <p class="label">Springfield, NJ · Bagels · Breakfast · Deli · Catering</p>
+    <h2 class="hero__title reveal-lines" id="hero-title">
+      <span class="ln"><span>Your <em>Springfield</em></span></span>
+      <span class="ln"><span>bagel shop, on</span></span>
+      <span class="ln"><span><em>Morris Avenue.</em></span></span>
+    </h2>
+    <p class="sec__lede reveal">Fresh bagels every morning, breakfast and egg sandwiches, deli sandwiches, wraps, homemade soups, coffee and baked goods, made right here in Springfield.</p>
+    <div class="hero__meta reveal">
+      <span class="pill pill--lg" data-status-pill><i></i><span>Checking hours…</span></span>
+      <span class="hero__addr"><svg class="ico"><use href="#i-pin"/></svg>207 Morris Avenue, Springfield, NJ</span>
+    </div>
+    <div class="hero__ctas reveal">
+      <a class="btn btn--crust" href="https://springfieldhotbagels.com/" target="_blank" rel="noopener">Order online <svg class="ico"><use href="#i-arrow"/></svg></a>
+      <a class="btn btn--line" href="tel:+19733795100"><svg class="ico"><use href="#i-phone"/></svg>Call (973) 379-5100</a>
+    </div>
+  </div>
+  <figure class="hero__art reveal" data-live>
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="hero__ring" aria-hidden="true"></div>
+    <svg class="badge" viewBox="0 0 200 200" aria-hidden="true">
+      <defs><path id="badgeCircle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs>
+      <circle cx="100" cy="100" r="96" fill="#2A1D15" stroke="rgba(227,184,119,.4)"/>
+      <text><textPath href="#badgeCircle" startOffset="0">SPRINGFIELD · NEW JERSEY · 207 MORRIS AVE ·</textPath></text>
+      <text x="100" y="96" text-anchor="middle" class="badge__nj">NJ</text>
+      <text x="100" y="122" text-anchor="middle" class="badge__zip">07081</text>
+    </svg>
+    <img class="live__still" src="assets/hero-bagel.webp" loading="lazy" alt="A glossy everything bagel" width="1400" height="1600">
+    <canvas class="live__canvas" data-hero-canvas aria-hidden="true"></canvas>
+    <figcaption class="hero__cap"><span>Fig. 01</span> The everything bagel, still warm</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 3. MENU ============ -->
+<section class="menu sec" id="menu" aria-labelledby="menu-title">
+  <header class="sec__head">
+    <p class="label"><span class="label__n">01</span> The menu</p>
+    <h2 class="sec__title reveal-lines" id="menu-title"><span class="ln"><span>Everything we make,</span></span><span class="ln"><span><em>start to finish.</em></span></span></h2>
+    <p class="sec__lede reveal">From our oven on Morris Avenue in Springfield: bagels, breakfast and egg sandwiches, deli sandwiches and wraps, homemade soups, coffee and baked goods. Order ahead online, or just come in.</p>
+    <p class="placeholder-note" data-menu-note hidden>Sample menu. Items and prices are placeholders until confirmed.</p>
+  </header>
+  <div class="menu__grid" data-menu></div>
+  <div class="menu__cta reveal">
+    <a class="btn btn--crust" href="https://springfieldhotbagels.com/" target="_blank" rel="noopener">See the full menu &amp; order <svg class="ico"><use href="#i-arrow"/></svg></a>
+  </div>
+</section>
+
+<!-- ============ 4. MARQUEE ============ -->
+<section class="strip" aria-label="Made every morning">
+  <div class="strip__track" data-marquee>
+    <div class="strip__row">
+      <span>Springfield, NJ</span><i>✦</i>
+      <span>Made every morning</span><i>✦</i>
+      <span><em>Boiled. Baked. Served hot.</em></span><i>✦</i>
+      <span>Fresh bagels daily</span><i>✦</i>
+      <span><em>Soup &amp; coffee on</em></span><i>✦</i>
+      <span>Catering for every occasion</span><i>✦</i>
+      <span><em>207 Morris Ave</em></span><i>✦</i>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. GALLERY ============ -->
+<section class="gallery sec" id="gallery" aria-labelledby="gallery-title">
+  <header class="sec__head sec__head--row">
+    <div>
+      <p class="label"><span class="label__n">02</span> From the counter</p>
+      <h2 class="sec__title reveal-lines" id="gallery-title"><span class="ln"><span>Out of the oven,</span></span><span class="ln"><span><em>onto the board.</em></span></span></h2>
+    </div>
+    <p class="placeholder-note">Placeholder images made from the 3D scene. Swap in your own food and shop photos.</p>
+  </header>
+  <div class="gallery__grid" data-gallery>
+    <button class="g g--a reveal" type="button" data-full="assets/g-sesame-macro.jpg"><img src="assets/g-sesame-macro.jpg" alt="Close-up of a sesame bagel crust" loading="lazy"><span>Sesame, up close</span></button>
+    <button class="g g--b reveal" type="button" data-full="assets/g-lineup.jpg"><img src="assets/g-lineup.jpg" alt="Four bagels lined up on a walnut board" loading="lazy"><span>The morning lineup</span></button>
+    <button class="g g--c reveal" type="button" data-full="assets/g-schmear.jpg"><img src="assets/g-schmear.jpg" alt="Cream cheese on a sliced bagel, seen from above" loading="lazy"><span>The schmear</span></button>
+    <button class="g g--d reveal" type="button" data-full="assets/g-everything.jpg"><img src="assets/g-everything.jpg" alt="An everything bagel on the board" loading="lazy"><span>Everything</span></button>
+    <button class="g g--e reveal" type="button" data-full="assets/g-poppy.jpg"><img src="assets/g-poppy.jpg" alt="A poppy seed bagel" loading="lazy"><span>Poppy seed</span></button>
+    <button class="g g--f reveal" type="button" data-full="assets/g-crumb.jpg"><img src="assets/g-crumb.jpg" alt="The soft inside of a sliced cinnamon raisin bagel" loading="lazy"><span>Cinnamon raisin, sliced</span></button>
+  </div>
+</section>
+
+<!-- ============ WORD OF MOUTH ============ -->
+<section class="word sec" id="springfield" aria-labelledby="word-title">
+  <div class="word__inner">
+    <p class="label"><span class="label__n">✦</span> Made in Springfield</p>
+    <h2 class="sec__title reveal-lines" id="word-title"><span class="ln"><span>Most of our regulars</span></span><span class="ln"><span>heard about us from</span></span><span class="ln"><span><em>a neighbor.</em></span></span></h2>
+    <p class="sec__lede reveal">Springfield Hot Bagels grows the old-fashioned way, one neighbor telling the next. If you liked your bagel, pass it on.</p>
+    <div class="word__ctas reveal">
+      <button class="btn btn--crust" type="button" data-share>Tell a neighbor <svg class="ico"><use href="#i-arrow"/></svg></button>
+      <a class="btn btn--line" href="#visit">Find us on Morris Ave</a>
+    </div>
+    <p class="word__toast" data-share-toast role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ============ 6. CATERING ============ -->
+<section class="catering" id="catering" aria-labelledby="catering-title">
+  <div class="catering__inner">
+    <div class="catering__copy">
+      <p class="label label--light"><span class="label__n">03</span> Catering</p>
+      <h2 class="sec__title reveal-lines" id="catering-title"><span class="ln"><span>Feeding the office,</span></span><span class="ln"><span>the party,</span></span><span class="ln"><span><em>the whole family.</em></span></span></h2>
+      <p class="sec__lede reveal">We cater for businesses, parties and special events across Springfield and nearby New Jersey towns. Tell us what you have in mind and we’ll put it together.</p>
+      <ul class="cater-list" data-catering></ul>
+      <div class="cater-3d" data-live aria-hidden="true">
+        <img class="live__still" src="assets/cater-stack.webp" loading="lazy" alt="" width="1200" height="1000">
+        <canvas class="live__canvas" data-cater-canvas></canvas>
+      </div>
+      <p class="placeholder-note placeholder-note--dark" data-cater-note hidden>Catering items are placeholders until confirmed.</p>
+      <p class="catering__call reveal">Rather talk it through? <a href="tel:+19733795100">Call (973) 379-5100</a></p>
+    </div>
+
+    <div class="catering__formwrap reveal">
+      <form class="cform" data-cform novalidate>
+        <div class="cform__head">
+          <span class="label label--light">Catering request</span>
+          <p>We’ll call you to confirm every order.</p>
+        </div>
+        <div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" autocomplete="name" required></div>
+        <div class="field-row">
+          <div class="field"><label for="cf-phone">Phone</label><input id="cf-phone" name="phone" type="tel" autocomplete="tel" required></div>
+          <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" autocomplete="email" required></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="cf-date">Event date</label><input id="cf-date" name="date" type="date" required></div>
+          <div class="field"><label for="cf-count">Headcount</label><input id="cf-count" name="headcount" type="number" min="1" inputmode="numeric" required></div>
+        </div>
+        <div class="field"><label for="cf-want">What you’d like</label><input id="cf-want" name="want" placeholder="Bagel platter, sandwich tray, coffee…" required></div>
+        <div class="field"><label for="cf-notes">Notes <span>(optional)</span></label><textarea id="cf-notes" name="notes" rows="3" placeholder="Allergies, pickup or delivery, timing…"></textarea></div>
+        <p class="cform__err" data-cform-err role="alert"></p>
+        <button class="btn btn--gold btn--block" type="submit">Send request <svg class="ico"><use href="#i-arrow"/></svg></button>
+      </form>
+
+      <div class="ticket" data-ticket hidden tabindex="-1" aria-live="polite">
+        <div class="ticket__paper">
+          <div class="ticket__top"><span>Springfield Hot Bagels</span><span data-t-no>No. 0000</span></div>
+          <p class="ticket__title">Request received</p>
+          <dl class="ticket__rows" data-t-rows></dl>
+          <p class="ticket__note">We’ll call you to confirm.</p>
+          <div class="ticket__bar" aria-hidden="true"></div>
+        </div>
+        <button class="btn btn--line btn--light btn--sm" type="button" data-t-new>Start another request</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. VISIT ============ -->
+<section class="visit sec" id="visit" aria-labelledby="visit-title">
+  <header class="sec__head">
+    <p class="label"><span class="label__n">04</span> Visit us</p>
+    <h2 class="sec__title reveal-lines" id="visit-title"><span class="ln"><span>207 Morris Avenue,</span></span><span class="ln"><span><em>Springfield.</em></span></span></h2>
+  </header>
+  <div class="visit__grid">
+    <div class="visit__map reveal" data-map>
+      <a class="map-card" data-map-card href="https://www.google.com/maps/search/?api=1&query=207+Morris+Avenue,+Springfield,+NJ+07081" target="_blank" rel="noopener" aria-label="Open 207 Morris Avenue, Springfield in Google Maps">
+        <img src="assets/map-springfield.webp" alt="Street map of Springfield, NJ around 207 Morris Avenue" width="1024" height="768" loading="lazy">
+        <span class="map-card__pin" aria-hidden="true"><i></i></span>
+        <span class="map-card__label"><b>Springfield Hot Bagels</b>207 Morris Avenue · Open in Google Maps</span>
+        <span class="map-card__credit">Map data © OpenStreetMap contributors</span>
+      </a>
+      <iframe title="Map showing Springfield Hot Bagels at 207 Morris Avenue" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=207+Morris+Avenue,+Springfield,+NJ+07081&z=16&output=embed"></iframe>
+    </div>
+    <div class="visit__info reveal">
+      <div class="visit__block">
+        <span class="label">Address</span>
+        <p class="visit__addr">207 Morris Avenue<br>Springfield, NJ 07081</p>
+        <p class="visit__sub">Serving Springfield and nearby New Jersey towns.</p>
+      </div>
+      <div class="visit__block">
+        <div class="visit__hrhead"><span class="label">Hours</span><span class="pill" data-status-pill><i></i><span>…</span></span></div>
+        <table class="hours" data-hours><tbody></tbody></table>
+        <p class="placeholder-note" data-hours-note hidden>Placeholder hours until confirmed.</p>
+      </div>
+      <div class="visit__btns">
+        <a class="btn btn--crust" href="https://www.google.com/maps/dir/?api=1&destination=207+Morris+Avenue,+Springfield,+NJ+07081" target="_blank" rel="noopener">Get directions <svg class="ico"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn--line" href="tel:+19733795100"><svg class="ico"><use href="#i-phone"/></svg>(973) 379-5100</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ 8. FOOTER ============ -->
+<footer class="foot">
+  <div class="foot__word" aria-hidden="true">Springfield <em>Hot Bagels</em></div>
+  <div class="foot__row">
+    <div><span class="label label--light">Call</span><a href="tel:+19733795100">(973) 379-5100</a></div>
+    <div><span class="label label--light">Find us</span><a href="https://www.google.com/maps/dir/?api=1&destination=207+Morris+Avenue,+Springfield,+NJ+07081" target="_blank" rel="noopener">207 Morris Avenue, Springfield, NJ 07081</a></div>
+    <div><span class="label label--light">Order</span><a href="https://springfieldhotbagels.com/" target="_blank" rel="noopener">springfieldhotbagels.com</a></div>
+  </div>
+  <p class="foot__fine">© <span data-year>2026</span> Springfield Hot Bagels · Made on Morris Avenue, Springfield, New Jersey</p>
+</footer>
+
+<!-- Phone bar -->
+<div class="mbar" data-mbar>
+  <a class="btn btn--crust" href="https://springfieldhotbagels.com/" target="_blank" rel="noopener">Order online</a>
+  <a class="btn btn--dark" href="tel:+19733795100"><svg class="ico"><use href="#i-phone"/></svg>Call</a>
+</div>
+
+<!-- Lightbox -->
+<div class="lb" data-lb hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lb__close" type="button" data-lb-close aria-label="Close">×</button>
+  <button class="lb__nav lb__nav--prev" type="button" data-lb-prev aria-label="Previous photo">‹</button>
+  <figure class="lb__fig"><img data-lb-img alt=""><figcaption data-lb-cap></figcaption></figure>
+  <button class="lb__nav lb__nav--next" type="button" data-lb-next aria-label="Next photo">›</button>
+</div>
+
+<script src="js/vendor/lenis.min.js"></script>
+<script src="js/vendor/gsap.min.js"></script>
+<script src="js/vendor/ScrollTrigger.min.js"></script>
+<script src="js/details.js"></script>
+<script src="js/site.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/oven.js"></script>
+<script src="js/post.js"></script>
+<script src="js/stage.js"></script>
+</body>
+</html>
