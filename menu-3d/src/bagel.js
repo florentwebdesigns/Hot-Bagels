@@ -6,6 +6,7 @@ import { gen, cached } from './tex.js';
 import { perlin, fbm, worley, smooth, mix3, hex, rng, clamp } from './noise.js';
 import { mesh, GC, board, top as T0, buildDrink, getSticker } from './food.js';
 import { mats } from './mats.js';
+import { EXTRA } from './extra.js';
 
 const TAU = Math.PI * 2;
 const memo = new Map();
@@ -16,14 +17,17 @@ const M = (k, f) => { if (!memo.has(k)) memo.set(k, f()); return memo.get(k); };
 function crustTex(kind, size = 1024) {
   return cached('crust' + kind + size, () => {
     const n = perlin(kind.length * 17 + 3), n2 = perlin(91), W = worley(33);
-    const top = hex(kind === 'cinnamon' ? '#7a3c18' : kind === 'plain' ? '#94501c' : '#874516');
-    const side = hex(kind === 'cinnamon' ? '#a5642e' : '#b8752f');
+    const top = hex(kind === 'cinnamon' ? '#6e3414' : kind === 'plain' ? '#8a4616' : '#7c3d12');
+    const side = hex(kind === 'cinnamon' ? '#9c5a28' : '#b06a28');
     const under = hex('#d2a66c'), scorch = hex('#5a2c10'), swirl = hex('#5b2e14');
     return gen(size, (u, v, o) => {
       const a = u * TAU, cx = Math.cos(a) * 3, cy = Math.sin(a) * 3;
       const t = Math.sin(v * TAU);                           // 1 top, -1 bottom
       const m = fbm(n, cx + v * 5.1, cy + v * 3.7, 5) * .5 + .5;
       let c = mix3(side, top, smooth(-.1, .9, t) * (.75 + .5 * m));
+      const fleck = fbm(n2, cx * 9 + v * 31, cy * 9 - v * 17, 3);
+      c = mix3(c, hex('#4a200a'), smooth(.35, .7, fleck) * .25 * smooth(0, .9, t));   // darker toasted mottling
+      c = mix3(c, hex('#e9b878'), smooth(.25, .55, -fleck) * .12);
       c = mix3(c, under, smooth(-.15, -.7, t));
       // oven-board marks and small scorches underneath, a darker ring where the top meets the side
       c = mix3(c, scorch, smooth(.62, .8, fbm(n2, cx * 2 + 9, cy * 2 + v * 8, 4) * .5 + .5) * smooth(-.3, -.8, t) * .6);
@@ -37,7 +41,7 @@ function crustTex(kind, size = 1024) {
       c = mix3(c, mix3(c, [255, 220, 170], .22), blister * .5);
       o.c = c;
       o.h = m * .55 + blister * .35;
-      o.r = clamp(.3 + .35 * smooth(.6, -.6, t) + .12 * (1 - m));   // egg-washed top is glossy, the bottom is matte
+      o.r = clamp(.24 + .42 * smooth(.6, -.6, t) + .12 * (1 - m));   // egg-washed top is glossy, the bottom is matte
     }, { normal: 3, rough: true, repeat: true, h: size / 2 });
   });
 }
@@ -64,7 +68,7 @@ function bunTex(size = 512) {   // kaiser roll: golden dome (v -> 1 at the top),
     }, { normal: 2, rough: true, repeat: true });
   });
 }
-function stripeTex(key, base, stripe, freq, size = 256, wavy = .3) {
+export function stripeTex(key, base, stripe, freq, size = 256, wavy = .3) {
   return cached('stripe' + key, () => {
     const n = perlin(key.length * 7 + 5);
     return gen(size, (u, v, o) => {
@@ -74,7 +78,7 @@ function stripeTex(key, base, stripe, freq, size = 256, wavy = .3) {
     }, { normal: 2, rough: true, repeat: true });
   });
 }
-function spotsTex(key, base, spot, density, size = 512) {   // tortilla, soup broth
+export function spotsTex(key, base, spot, density, size = 512) {   // tortilla, soup broth
   return cached('spots' + key, () => {
     const n = perlin(key.length * 11), W = worley(key.length * 3 + 1);
     return gen(size, (u, v, o) => {
@@ -85,10 +89,10 @@ function spotsTex(key, base, spot, density, size = 512) {   // tortilla, soup br
     }, { normal: 1.5, rough: true, repeat: true });
   });
 }
-function fillingTex(size = 512) {   // cut face of the wrap: lettuce, tomato, turkey, cheese in a spiral
-  return cached('wrapfill', () => {
+function fillingTex(k = 'deli', size = 512) {   // cut face of the wrap: lettuce, tomato, turkey, cheese in a spiral
+  return cached('wrapfill' + k, () => {
     const n = perlin(77), W = worley(78);
-    const cols = ['#6f9d34', '#c8312a', '#e9c2a6', '#f0b43a', '#8fbf4a', '#f4efe2'].map(hex);
+    const cols = (k === 'buffalo' ? ['#6f9d34', '#c8312a', '#d9642a', '#c4521e', '#8fbf4a', '#f4efe2', '#e07a3a'] : ['#6f9d34', '#c8312a', '#e9c2a6', '#f0b43a', '#8fbf4a', '#f4efe2']).map(hex);
     return gen(size, (u, v, o) => {
       const x = u - .5, y = v - .5, r = Math.hypot(x, y) * 2, a = Math.atan2(y, x);
       const [d1, id] = W(u * 10 + n(u * 3, v * 3) * .6, v * 10);
@@ -100,20 +104,75 @@ function fillingTex(size = 512) {   // cut face of the wrap: lettuce, tomato, tu
   });
 }
 
+function creamTex(k, size = 512) {   // spread with a knife: soft swirl ridges (and scallion flecks)
+  return cached('cream' + k, () => {
+    const n = perlin(k.length * 5 + 61), W = worley(62);
+    return gen(size, (u, v, o) => {
+      const x = u - .5, y = v - .5, r = Math.hypot(x, y), a = Math.atan2(y, x);
+      const ridge = Math.sin(a * 3 + r * 26 + 2.5 * n(u * 3, v * 3)) * .5 + .5;
+      const m = fbm(n, u * 9, v * 9, 4) * .5 + .5;
+      let c = mix3(hex('#fbf7ef'), hex('#ece3d2'), (1 - ridge) * .35 + m * .2);
+      if (k === 'scallion') { const [d1] = W(u * 40, v * 40); const f = (1 - smooth(.02, .1, d1)) * (n(u * 30, v * 30) > .1 ? 1 : 0); c = mix3(c, hex('#4f8a2a'), f * .9); }
+      o.c = c; o.h = smooth(.3, .9, ridge) * .5 + m * .25;
+    }, { normal: 3 });
+  });
+}
+function lettuceTex(size = 512) {   // iceberg / green leaf: pale ribs fanning out from the middle
+  return cached('lettuceT', () => {
+    const n = perlin(88);
+    return gen(size, (u, v, o) => {
+      const x = u - .5, y = v - .5, r = Math.hypot(x, y) * 2, a = Math.atan2(y, x);
+      const vein = Math.pow(Math.abs(Math.sin(a * 7 + n(u * 4, v * 4) * .8)), 18) * smooth(.05, .3, r);
+      const m = fbm(n, u * 8, v * 8, 4) * .5 + .5;
+      let c = mix3(hex('#5f9a2e'), hex('#a9cf5a'), m * .6 + r * .25);
+      c = mix3(c, hex('#e4f2b8'), vein * .8);
+      o.c = c; o.h = m * .5 - vein * .4 + Math.sin(r * 40 + m * 6) * .05;
+    }, { normal: 3 });
+  });
+}
+function taylorTex(size = 512) {   // pork roll: pink centre, browned seared rim and grill marks
+  return cached('taylorT', () => {
+    const n = perlin(31);
+    return gen(size, (u, v, o) => {
+      const r = Math.hypot(u - .5, v - .5) * 2, m = fbm(n, u * 7, v * 7, 4) * .5 + .5;
+      let c = mix3(hex('#e39a8a'), hex('#c9725e'), m * .5);
+      c = mix3(c, hex('#7a3a1e'), smooth(.7, .98, r) * .85 + smooth(.55, .8, m) * .25);
+      o.c = c; o.h = m * .4;
+    }, { normal: 2 });
+  });
+}
+function pastramiTex(size = 512) {   // deep red slices with a peppery, dark edge and white fat seams
+  return cached('pastramiT', () => {
+    const n = perlin(51), W = worley(52);
+    return gen(size, (u, v, o) => {
+      const m = fbm(n, u * 6, v * 3, 5) * .5 + .5;
+      let c = mix3(hex('#8e2a22'), hex('#c4554a'), m * .6);
+      const seam = Math.pow(Math.abs(Math.sin((v * 3 + n(u * 3, v * 2) * .6) * Math.PI)), 30);
+      c = mix3(c, hex('#f0d2c0'), seam * .7);
+      const edge = smooth(.78, .97, Math.abs(v - .5) * 2);
+      const [d1] = W(u * 60, v * 60); const pep = (1 - smooth(.03, .12, d1)) * edge;
+      c = mix3(c, hex('#3a1a10'), edge * .7); c = mix3(c, hex('#0e0806'), pep);
+      o.c = c; o.h = m * .4 + pep * .5 - seam * .2; o.r = .45;
+    }, { normal: 2.5, rough: true, repeat: true });
+  });
+}
+
 /* ================= materials ================= */
-const BM = {
-  crust: (kind) => M('crust' + kind, () => { const t = crustTex(kind); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.1, 1.1), roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .35, clearcoatRoughness: .35, sheen: .4, sheenRoughness: .5, sheenColor: new THREE.Color('#ffc98a') }); }),
+export const BM = {
+  crust: (kind) => M('crust' + kind, () => { const t = crustTex(kind); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.1, 1.1), roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .55, clearcoatRoughness: .28, sheen: .45, sheenRoughness: .5, sheenColor: new THREE.Color('#ffc98a') }); }),
   crumb: () => M('crumb', () => { const t = crumbTex(); t.map.repeat.set(2, 2); t.normalMap.repeat.set(2, 2); return new THREE.MeshStandardMaterial({ map: t.map, normalMap: t.normalMap, roughness: .85 }); }),
   bun: () => M('bun', () => { const t = bunTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .3, clearcoatRoughness: .4, sheen: .3, sheenColor: new THREE.Color('#ffd09a') }); }),
-  creamCheese: () => M('cc', () => new THREE.MeshPhysicalMaterial({ color: '#f7f2e8', roughness: .42, sheen: .6, sheenColor: new THREE.Color('#ffffff'), sheenRoughness: .5, clearcoat: .2 })),
+  creamCheese: (k = 'plain') => M('cc' + k, () => { const t = creamTex(k); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.3, 1.3), roughness: .38, sheen: .6, sheenColor: new THREE.Color('#ffffff'), sheenRoughness: .5, clearcoat: .25, clearcoatRoughness: .3 }); }),
   lox: () => M('lox', () => { const t = stripeTex('lox', '#f07a4c', '#ffd2b8', 9, 256, .5); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughness: .3, clearcoat: .7, clearcoatRoughness: .15, sheen: .4, sheenColor: new THREE.Color('#ffb08a'), side: THREE.DoubleSide, transmission: .0 }); }),
   bacon: () => M('bacon', () => { const t = stripeTex('bacon', '#8e2a16', '#e8b48a', 6, 256, .9); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.6, 1.6), roughness: .38, clearcoat: .6, clearcoatRoughness: .25, side: THREE.DoubleSide }); }),
   american: () => M('american', () => new THREE.MeshPhysicalMaterial({ color: '#f2a634', roughness: .3, clearcoat: .6, clearcoatRoughness: .2, sheen: .4, sheenColor: new THREE.Color('#ffd27a'), side: THREE.DoubleSide })),
-  lettuce: () => M('lettuce', () => new THREE.MeshPhysicalMaterial({ color: '#86b543', roughness: .4, clearcoat: .5, clearcoatRoughness: .3, sheen: .4, sheenColor: new THREE.Color('#d8ff9a'), side: THREE.DoubleSide })),
+  lettuce: () => M('lettuce', () => { const t = lettuceTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.5, 1.5), roughness: .4, clearcoat: .5, clearcoatRoughness: .3, sheen: .4, sheenColor: new THREE.Color('#d8ff9a'), side: THREE.DoubleSide }); }),
+  taylor: () => M('taylor', () => { const t = taylorTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughness: .42, clearcoat: .45, clearcoatRoughness: .3, sheen: .3, side: THREE.DoubleSide }); }),
+  pastrami: () => M('pastrami', () => { const t = pastramiTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.4, 1.4), roughness: .4, clearcoat: .4, clearcoatRoughness: .3, sheen: .3, sheenColor: new THREE.Color('#ff9a8a'), side: THREE.DoubleSide }); }),
   turkey: () => M('turkey', () => { const t = stripeTex('turkey', '#e9c5a8', '#d9a98a', 3, 256, .8); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughness: .5, sheen: .3, side: THREE.DoubleSide }); }),
   onion: () => M('onion', () => new THREE.MeshPhysicalMaterial({ color: '#a2477e', roughness: .25, clearcoat: .8, transmission: .2, thickness: .05 })),
   tortilla: () => M('tortilla', () => { const t = spotsTex('tortilla', '#e2c48c', '#8a5528', -.2); return new THREE.MeshStandardMaterial({ map: t.map, normalMap: t.normalMap, roughness: .7, side: THREE.DoubleSide }); }),
-  wrapFill: () => M('wrapfill', () => { const t = fillingTex(); return new THREE.MeshStandardMaterial({ map: t.map, normalMap: t.normalMap, roughness: .55 }); }),
+  wrapFill: (k = 'deli') => M('wrapfill' + k, () => { const t = fillingTex(k); return new THREE.MeshStandardMaterial({ map: t.map, normalMap: t.normalMap, roughness: .55 }); }),
   bowl: () => M('bowl', () => new THREE.MeshPhysicalMaterial({ color: '#efe6d6', roughness: .22, clearcoat: 1, clearcoatRoughness: .06 })),
   bowlOut: () => M('bowlOut', () => new THREE.MeshPhysicalMaterial({ color: '#2d2621', roughness: .4, clearcoat: .8, clearcoatRoughness: .2 })),
   broth: () => M('broth', () => { const t = spotsTex('broth', '#d69a3c', '#f2d27a', .1); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughness: .08, clearcoat: 1, clearcoatRoughness: .02 }); }),
@@ -173,7 +232,7 @@ function cutFace(up) {
     return g;
   });
 }
-const CUT_Y = SHAPE.b * SHAPE.base;
+export const CUT_Y = SHAPE.b * SHAPE.base;
 // a point on the top of the crust (for seeds): returns position and normal in bagel space
 function crustPoint(u, th) {
   const e = .002, P = (uu, tt) => { const [dr, y] = section(tt, SHAPE.a, SHAPE.b); const r = SHAPE.R + dr; return new THREE.Vector3(Math.cos(uu * TAU) * r, y + CUT_Y, Math.sin(uu * TAU) * r); };
@@ -225,7 +284,7 @@ const TOPPINGS = {
 };
 
 // one bagel half or whole, crust + seeds (+ crumb face for halves)
-function bagelPart(flavor, part, seed, lite) {
+export function bagelPart(flavor, part, seed, lite) {
   const g = new THREE.Group(), r = rng(seed);
   const kind = flavor === 'cinnamon' ? 'cinnamon' : flavor === 'plain' ? 'plain' : 'seeded';
   const body = mesh(bagelGeo(part, seed, lite ? 96 : 128, lite ? 36 : 48), BM.crust(kind)); g.add(body);
@@ -237,7 +296,7 @@ function bagelPart(flavor, part, seed, lite) {
 
 /* ================= fillings ================= */
 // a soft disc with a wavy, slightly drooping edge (egg, cream cheese, lettuce, turkey)
-function softDisc(key, R, thick, amp, freq, droop = 0, seed = 1) {
+export function softDisc(key, R, thick, amp, freq, droop = 0, seed = 1) {
   return GC('disc' + key, () => {
     const g = new THREE.CylinderGeometry(R, R, thick, 96, 2, false), p = g.attributes.position, n = perlin(seed), v = new THREE.Vector3();
     for (let i = 0; i < p.count; i++) {
@@ -259,7 +318,7 @@ function cheeseSlice() {
     g.computeVertexNormals(); return g;
   });
 }
-function ribbon(key, L, Wd, waves, amp, curl = 0) {
+export function ribbon(key, L, Wd, waves, amp, curl = 0) {
   return GC('ribbon' + key, () => {
     const g = new THREE.PlaneGeometry(L, Wd, 80, 6); g.rotateX(-Math.PI / 2);
     const p = g.attributes.position;
@@ -269,11 +328,20 @@ function ribbon(key, L, Wd, waves, amp, curl = 0) {
 }
 function addLayer(stack, obj, h) { obj.position.y += stack.y + h / 2; stack.g.add(obj); stack.y += h; return obj; }
 
-const FILL = {
-  cream(st, r) { const o = mesh(softDisc('cc', 1.02, .14, .08, 7, .02, 4), BM.creamCheese()); addLayer(st, o, .12); },
-  creamThin(st, r) { const o = mesh(softDisc('cct', .98, .07, .06, 9, .01, 6), BM.creamCheese()); addLayer(st, o, .06); },
+export const FILL = {
+  cream(st, r) { const o = mesh(softDisc('cc2', 1.0, .09, .045, 5, .03, 4), BM.creamCheese()); o.rotation.y = r() * 6; addLayer(st, o, .08); },
+  creamScallion(st, r) { const o = mesh(softDisc('ccs2', 1.0, .09, .045, 5, .03, 5), BM.creamCheese('scallion')); o.rotation.y = r() * 6; addLayer(st, o, .08); },
+  taylor(st, r) {
+    for (let i = 0; i < 2; i++) { const o = mesh(GC('taylorG', () => { const g = softDisc('tay', .78, .05, .05, 4, .015, 33).clone(); const p = g.attributes.position; for (let k = 0; k < p.count; k++) { const x = p.getX(k), z = p.getZ(k), rr = Math.hypot(x, z), a = Math.atan2(z, x); if (rr > .6) { const notch = Math.pow(Math.abs(Math.cos(a * 2)), 40); p.setX(k, x * (1 - notch * .14)); p.setZ(k, z * (1 - notch * .14)); } } g.computeVertexNormals(); return g; }), BM.taylor()); o.position.set((i - .5) * .45, st.y + .03 + i * .045, (i - .5) * .2); o.rotation.set((i - .5) * .1, i * .8, 0); st.g.add(o); }
+    st.y += .1;
+  },
+  pastrami(st, r) {
+    for (let i = 0; i < 9; i++) { const o = mesh(ribbon('pastrami' + (i % 3), 1.9, .5, 1.6 + (i % 3) * .5, .09, .5), BM.pastrami()); o.rotation.y = i * .7 + r() * .3; o.position.set((r() - .5) * .25, st.y + .05 + i * .045, (r() - .5) * .25); st.g.add(o); }
+    st.y += .42;
+  },
+  creamThin(st, r) { const o = mesh(softDisc('cct2', .98, .06, .04, 6, .02, 6), BM.creamCheese()); o.rotation.y = r() * 6; addLayer(st, o, .05); },
   lox(st, r) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 3; i++) {
       const o = mesh(ribbon('lox', 1.45, .5, 2.2, .05, .3), BM.lox()); o.rotation.y = i * .8 + r() * .4; const a = i * 1.6; o.position.set(Math.cos(a) * .3, st.y + .05 + i * .03, Math.sin(a) * .3); st.g.add(o);
     }
     st.y += .13;
@@ -314,6 +382,26 @@ export function buildSandwich(rc, opts = {}) {
   const B = board(); base.add(B); const Y0 = .085;
   const r = rng(rc.seed || 5);
   const bread = rc.bread || 'everything';
+  if (rc.open && bread !== 'roll') {
+    const hold = new THREE.Group(); hold.position.y = Y0; base.add(hold);
+    const S = .64;
+    [0, 1].forEach((k) => {
+      const half = new THREE.Group(); half.scale.setScalar(S);
+      let h;
+      if (k === 0) { h = bagelPart(bread, 'bottom', rc.seed || 5, opts.lite); half.add(h); }
+      else { h = bagelPart(bread, 'top', rc.seed || 5, opts.lite); h.rotation.x = Math.PI; h.position.y = CUT_Y + SHAPE.b; half.add(h); }
+      const cut = k === 0 ? CUT_Y : SHAPE.b;
+      const st = { g: new THREE.Group(), y: 0 }; st.g.position.y = cut; half.add(st.g);
+      const rr = rng((rc.seed || 5) * 7 + k);
+      for (const f of rc.fill || []) FILL[f](st, rr);
+      half.position.set(k ? .66 : -.66, 0, k ? -.18 : .18); half.rotation.y = k ? 2.1 : .3;
+      hold.add(half);
+    });
+    hold.rotation.y = rc.turn ?? .25;
+    parts.push({ obj: hold, dir: new THREE.Vector3(0, .5, 0) });
+    grp.userData = { parts, kind: 'sandwich', H: .9 };
+    return grp;
+  }
   let bottom, topHalf, cutY;
   if (bread === 'roll') {
     bottom = mesh(GC('rollBot', () => rollGeo(false)), BM.bun()); topHalf = mesh(GC('rollTop', () => rollGeo(true)), BM.bun());
@@ -351,7 +439,7 @@ export function buildWrap(rc, opts = {}) {
   const half = (angle) => {
     const h = new THREE.Group();
     const tube = mesh(GC('wrapTube', () => new THREE.CylinderGeometry(.34, .34, 1.15, 56, 1, true)), BM.tortilla()); h.add(tube);
-    const cap = mesh(GC('wrapCap', () => { const g = new THREE.CircleGeometry(.335, 56); g.rotateX(-Math.PI / 2); return g; }), BM.wrapFill()); cap.position.y = .575; h.add(cap);
+    const cap = mesh(GC('wrapCap', () => { const g = new THREE.CircleGeometry(.335, 56); g.rotateX(-Math.PI / 2); return g; }), BM.wrapFill(rc.fillKind || 'deli')); cap.position.y = .575; h.add(cap);
     const end = mesh(GC('wrapEnd', () => { const g = new THREE.SphereGeometry(.34, 40, 16, 0, TAU, Math.PI / 2, Math.PI / 2); return g; }), BM.tortilla()); end.position.y = -.575; h.add(end);
     return h;
   };
@@ -399,6 +487,7 @@ export function buildHotCoffee(rc, opts = {}) {
   return grp;
 }
 export function buildBagelItem(rc, opts) {
+  if (EXTRA[rc.type]) return EXTRA[rc.type](rc, opts);
   if (rc.type === 'bagel') return buildBagel(rc, opts);
   if (rc.type === 'sandwich') return buildSandwich(rc, opts);
   if (rc.type === 'wrap') return buildWrap(rc, opts);

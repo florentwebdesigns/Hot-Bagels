@@ -91,6 +91,7 @@ export const PALETTES = {
   toast: { deep: '#1a0b05', mid: '#9a5422', rib: '#d38a3e', cream: '#f0c98a', spec: '#ffd9a8', bokeh: '#ffaa55' },
   yolk: { deep: '#221304', mid: '#b88a1e', rib: '#6a4810', cream: '#f8e0a0', spec: '#fff0c8', bokeh: '#ffd27a' },
   herb: { deep: '#141205', mid: '#6e7224', rib: '#3a3a10', cream: '#e6e8b0', spec: '#f4ffd8', bokeh: '#d8e070' },
+  bakery: { deep: '#1a0c08', mid: '#8a4a2c', rib: '#c07850', cream: '#f2d0b0', spec: '#ffe2c8', bokeh: '#ff9a70' },
   espresso: { deep: '#120805', mid: '#5a2e14', rib: '#2a140a', cream: '#d8b08a', spec: '#ffe0c0', bokeh: '#e09a60' },
   // hero: molten caramel with chocolate ribbons and cream veins
   caramel: { deep: '#1f0b04', mid: '#e08a2c', rib: '#3d1a0c', cream: '#f3d39a', spec: '#ffd9a0', bokeh: '#ffb45e' },

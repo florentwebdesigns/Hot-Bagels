@@ -704,7 +704,7 @@ html.is-locked, html.is-locked body { overflow: hidden; }
    3D menu stage (same build as the Crepe Craft menu)
    ========================================================== */
 .m3d { position: relative; display: none; --mood: #ffc58e; }
-.m3d-on .m3d { display: block; height: calc(var(--n) * 34vh + 100vh); }
+.m3d-on .m3d { display: block; height: calc(var(--n) * 26vh + 100vh); }
 .m3d-on .menu--list { padding-top: clamp(40px, 6vh, 80px); }
 .m3d__stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: #0c0705; }
 .m3d__gl { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; opacity: 0; transition: opacity .8s var(--ease); }
@@ -738,7 +738,7 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 .m3d__arrow:active { transform: scale(.94); }
 .m3d__arrow--prev { left: max(var(--gut), 4vw); }
 .m3d__arrow--next { right: max(var(--gut), 4vw); }
-.m3d__tabs { position: absolute; left: var(--gut); right: var(--gut); bottom: 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.m3d__tabs { position: absolute; left: var(--gut); right: var(--gut); bottom: 26px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .m3d__tabs button { position: relative; min-height: 48px; padding: 10px 0 14px; text-align: left; background: none; border: 0; cursor: pointer; color: rgba(244, 238, 228, .55); font: 600 14px/1.2 var(--sans); }
 .m3d__tabs button::before, .m3d__tabs button::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px; }
 .m3d__tabs button::before { background: rgba(244, 238, 228, .14); }
@@ -780,3 +780,6 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 .oitems.is-bad .orow select { border-color: #ff9a8a; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .ticket__call { margin-top: 14px; }
+
+.bg__bagel { display: none; }
+.menu__cta { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }

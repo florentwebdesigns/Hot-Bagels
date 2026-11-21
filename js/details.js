@@ -17,12 +17,12 @@ window.HB_DETAILS = {
   mapsQuery: '207 Morris Avenue, Springfield, NJ 07081',
   timeZone: 'America/New_York',
 
-  /* PLACEHOLDER HOURS — replace with your real hours.
+  /* HOURS (from the shop's online ordering page, Nov 2026).
      Minutes after midnight: [open, close]. null = closed.
      360 = 6:00 AM, 900 = 3:00 PM. */
-  hoursArePlaceholder: true,
+  hoursArePlaceholder: false,   // from the shop's online ordering page: Mon-Sat 6am-3pm, Sun 6am-2pm
   hours: {
-    0: [360, 900],   // Sunday
+    0: [360, 840],   // Sunday
     1: [360, 900],   // Monday
     2: [360, 900],   // Tuesday
     3: [360, 900],   // Wednesday

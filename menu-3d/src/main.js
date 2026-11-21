@@ -47,7 +47,7 @@ export async function boot({ reduce = false } = {}) {
       ui.price.textContent = it.price || 'Price to be confirmed';
       ui.price.classList.toggle('is-tbd', !it.price);
       ui.note.textContent = cat.note;
-      if (ui.add) { ui.add.dataset.item = it.name; ui.add.setAttribute('aria-label', `Add ${it.name} to your order`); }
+      if (ui.add) { ui.add.dataset.item = it.order || it.name; ui.add.setAttribute('aria-label', `Add ${it.name} to your order`); }
       ui.item.classList.add('is-in');
       ui.tabs.forEach(t => { const on = t.dataset.mTab === cat.id; t.classList.toggle('is-on', on); if (on) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current'); t.style.setProperty('--p', on ? (k / catLen[cat.id]).toFixed(3) : (CATS.findIndex(c => c.id === t.dataset.mTab) < CATS.findIndex(c => c.id === cat.id) ? 1 : 0)); });
       menuSec.style.setProperty('--mood', cat.mood[1]);

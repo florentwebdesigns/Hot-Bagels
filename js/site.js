@@ -134,18 +134,21 @@
   /* ---------- Menu ---------- */
   const menuEl = $('[data-menu]');
   if (menuEl) {
-    menuEl.innerHTML = D.menu.map((cat, ci) => `
+    // homepage: a few favourites from each part of the real menu (js/menu-data.js); the full list is on menu.html
+    const ICON = { specials: 'coffee', bagels: 'bagel', bakery: 'pastry', egg: 'egg', soups: 'soup', 'specialty-hot': 'sandwich', hot: 'sandwich', cold: 'sandwich', wraps: 'wrap', drinks: 'coffee' };
+    const favs = (window.HB_MENU ? HB_MENU.groups : []).map((g) => ({ g, items: g.items.filter((i) => i.fav) })).filter((x) => x.items.length);
+    const cols = [['Bagels & breakfast', ['specials', 'bagels', 'egg']], ['Deli & lunch', ['specialty-hot', 'hot', 'cold', 'wraps', 'soups']], ['Drinks', ['drinks']]];
+    menuEl.innerHTML = cols.map(([title, ids], ci) => `
       <div class="mcat reveal">
-        <div class="mcat__head"><h3 class="mcat__title">${esc(cat.title)}</h3><span class="mcat__n">${String(ci + 1).padStart(2, '0')}</span></div>
-        <ul class="mitems">${cat.items.map((it) => `
+        <div class="mcat__head"><h3 class="mcat__title">${esc(title)}</h3><span class="mcat__n">${String(ci + 1).padStart(2, '0')}</span></div>
+        <ul class="mitems">${favs.filter((x) => ids.includes(x.g.id)).flatMap((x) => x.items.map((it) => `
           <li class="mitem">
-            <svg class="mitem__ico" aria-hidden="true"><use href="#i-${esc(it.icon || 'bagel')}"/></svg>
-            <span class="mitem__name${it.italic ? ' is-italic' : ''}">${esc(it.name)}${it.note ? `<span class="mitem__note">${esc(it.note)}</span>` : ''}</span>
-            ${it.price ? `<span class="mitem__price">${esc(it.price)}</span>` : '<span class="mitem__price is-tbd" title="Price to be confirmed">Price</span>'}
-          </li>`).join('')}
+            <svg class="mitem__ico" aria-hidden="true"><use href="#i-${ICON[x.g.id] || 'bagel'}"/></svg>
+            <span class="mitem__name">${esc(it.n.replace(/^[A-Z]\d+\. /, ''))}${it.d ? `<span class="mitem__note">${esc(it.d)}</span>` : ''}</span>
+            <span class="mitem__price">$${esc(it.p)}</span>
+          </li>`)).join('')}
         </ul>
       </div>`).join('');
-    if (D.menuIsPlaceholder) $('[data-menu-note]').hidden = false;
   }
 
   /* ---------- Catering list ---------- */
@@ -291,8 +294,9 @@
   const form = $('[data-cform]'), ticket = $('[data-ticket]'), err = $('[data-cform-err]');
   /* ---------- order items: a dropdown of the menu (and catering), with quantities ---------- */
   const rowsEl = $('[data-orows]');
-  const groups = [...D.menu.map((c) => [c.title, c.items.map((i) => i.name)]), ['Catering', D.catering.map((c) => c.name)]];
-  const optionsHTML = '<option value="">Choose from the menu…</option>' + groups.map(([g, items]) => `<optgroup label="${esc(g)}">${items.map((n) => `<option>${esc(n)}</option>`).join('')}</optgroup>`).join('');
+  const groups = (window.HB_MENU ? HB_MENU.groups : []).map((g) => [g.title, g.items.map((i) => [i.n, `${i.n} · $${i.p}`])]);
+  groups.push(['Catering', D.catering.map((c) => [c.name, c.name])]);
+  const optionsHTML = '<option value="">Choose from the menu…</option>' + groups.map(([g, items]) => `<optgroup label="${esc(g)}">${items.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('')}</optgroup>`).join('');
   let rowN = 0;
   const addRow = (value = '') => {
     const id = 'oi-' + (++rowN);
@@ -313,7 +317,7 @@
   window.HB_ADD_TO_ORDER = (name) => {
     const empty = [...rowsEl.querySelectorAll('select')].find((s2) => !s2.value);
     const sel = empty || addRow();
-    const opt = [...sel.options].find((o) => o.text === name) || [...sel.options].find((o) => o.text.toLowerCase().includes(name.toLowerCase().split(' ')[0]));
+    const opt = [...sel.options].find((o) => o.value === name);
     if (opt) sel.value = opt.value; else sel.add(new Option(name, name, true, true));
     form.hidden = false; ticket.hidden = true;
     $('[data-oitems]').classList.remove('is-bad');

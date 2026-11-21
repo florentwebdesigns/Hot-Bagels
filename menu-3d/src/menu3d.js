@@ -9,7 +9,7 @@ import { ease, lerp, clamp01, damp } from './anim.js';
 export function createMenu(canvas, ui, opt = {}) {
   const phone = !!opt.phone, reduce = !!opt.reduce;
   const S = createStage(canvas, { phone, palette: 'toast', fixedPR: opt.fixedPR });
-  const PAL = { bagels: 'toast', breakfast: 'yolk', deli: 'herb', coffee: 'espresso' };
+  const PAL = { bagels: 'toast', breakfast: 'yolk', bakery: 'bakery', deli: 'herb', drinks: 'espresso' };
   const { scene, camera } = S;
   const N = ITEMS.length;
   const holders = ITEMS.map(() => { const h = new THREE.Group(); h.visible = false; scene.add(h); return h; });
@@ -17,7 +17,7 @@ export function createMenu(canvas, ui, opt = {}) {
   function ensure(i) {
     if (i < 0 || i >= N || models[i]) return;
     const m = buildItem(ITEMS[i].r, { lite: phone });
-    const k = /drink|hotcoffee/.test(ITEMS[i].r.type) ? 1.22 : 1;
+    const k = /drink|hotcoffee|bottle/.test(ITEMS[i].r.type) ? 1.22 : 1;
     m.scale.setScalar(k);
     models[i] = m; holders[i].add(m);
   }
@@ -81,7 +81,7 @@ export function createMenu(canvas, ui, opt = {}) {
       models[i].rotation.y = ry;
     }
     // pedestal + shadow sit under the centre slot; the shadow follows the item's footprint
-    const it = ITEMS[ti], drink = /drink|hotcoffee/.test(it.r.type);
+    const it = ITEMS[ti], drink = /drink|hotcoffee|bottle/.test(it.r.type);
     S.shadow.scale.setScalar(drink ? .55 : 1);
     kindY = damp(kindY, drink ? 1.05 : .32, 4, dt);
     // camera: closer framing for the flat plates, a little lower for tall cups
