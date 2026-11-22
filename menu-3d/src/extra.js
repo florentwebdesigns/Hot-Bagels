@@ -9,6 +9,7 @@ import { perlin, fbm, worley, smooth, mix3, hex, rng, clamp } from './noise.js';
 import { mesh, GC, board, top as T0 } from './food.js';
 import { mats } from './mats.js';
 import * as G from './geo.js';
+import { crustDetail, loadModel } from './real.js';
 import { bagelPart, BM, FILL, ribbon, softDisc, buildSandwich, buildHotCoffee } from './bagel.js';
 
 const TAU = Math.PI * 2;
@@ -80,6 +81,14 @@ function croissant(r) {
 export function buildCroissant(rc) {
   const grp = new THREE.Group(), base = new THREE.Group(); grp.add(base); base.add(board());
   const c = croissant(); c.position.y = Y0; c.rotation.y = .2; c.scale.set(1.25, 1.45, 1.25); base.add(c);
+  loadModel('assets/3d/croissant/croissant.gltf').then((scan) => {
+    const s = scan.clone(true);
+    s.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; const m = o.material; o.material = phys({ map: m.map, normalMap: m.normalMap, roughnessMap: m.roughnessMap, roughness: 1, metalness: 0, clearcoat: .45, clearcoatRoughness: .3, sheen: .4, sheenColor: new THREE.Color('#ffcf8a') }); } });
+    s.scale.setScalar(10); s.position.set(.05, Y0, .1); s.rotation.y = .3;
+    base.remove(c); base.add(s);
+    const two = s.clone(true); two.scale.setScalar(8); two.position.set(-.35, Y0, -.55); two.rotation.y = 2.4; base.add(two);
+    s.position.set(.25, Y0, .35);
+  }).catch(() => {});
   return item(grp, [{ obj: c, dir: new THREE.Vector3(0, .4, 0) }], 'bake', .8);
 }
 
@@ -225,7 +234,7 @@ function disc(key, R, mBase, mFace) {
   const o = new THREE.Mesh(g, [mBase, mFace, mFace]); o.castShadow = o.receiveShadow = true; return o;
 }
 const HM = {
-  hero: () => M('heroM', () => { const t = heroTex(); return phys({ map: t.map, normalMap: t.normalMap, roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .35, clearcoatRoughness: .4, sheen: .4, sheenColor: new THREE.Color('#ffd09a') }); }),
+  hero: () => M('heroM', () => { const t = heroTex(); return phys({ map: t.map, normalMap: crustDetail(3), normalScale: new THREE.Vector2(1.2, 1.2), clearcoatNormalMap: crustDetail(3), roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .35, clearcoatRoughness: .4, sheen: .4, sheenColor: new THREE.Color('#ffd09a') }); }),
   salami: () => M('salamiM', () => { const t = meatTex('salami', '#9a2a26', '#f2d8cc', 14); return phys({ map: t.map, normalMap: t.normalMap, roughness: .4, clearcoat: .4 }); }),
   pepperoni: () => M('pepM', () => { const t = meatTex('pepperoni', '#b8401e', '#e89a6a', 9); return phys({ map: t.map, normalMap: t.normalMap, roughness: .35, clearcoat: .5 }); }),
   meatSide: () => M('meatSide', () => phys({ color: '#7a2018', roughness: .5 })),

@@ -7,6 +7,7 @@ import { perlin, fbm, worley, smooth, mix3, hex, rng, clamp } from './noise.js';
 import { mesh, GC, board, top as T0, buildDrink, getSticker } from './food.js';
 import { mats } from './mats.js';
 import { EXTRA } from './extra.js';
+import { crustDetail } from './real.js';
 
 const TAU = Math.PI * 2;
 const memo = new Map();
@@ -28,7 +29,7 @@ function crustTex(kind, size = 1024) {
       const fleck = fbm(n2, cx * 9 + v * 31, cy * 9 - v * 17, 3);
       c = mix3(c, hex('#4a200a'), smooth(.35, .7, fleck) * .25 * smooth(0, .9, t));   // darker toasted mottling
       c = mix3(c, hex('#e9b878'), smooth(.25, .55, -fleck) * .12);
-      c = mix3(c, under, smooth(-.15, -.7, t));
+      c = mix3(c, under, smooth(-.72, -.97, t));
       // oven-board marks and small scorches underneath, a darker ring where the top meets the side
       c = mix3(c, scorch, smooth(.62, .8, fbm(n2, cx * 2 + 9, cy * 2 + v * 8, 4) * .5 + .5) * smooth(-.3, -.8, t) * .6);
       c = mix3(c, scorch, Math.exp(-Math.pow((t - .2) / .12, 2)) * .12);
@@ -63,7 +64,8 @@ function bunTex(size = 512) {   // kaiser roll: golden dome (v -> 1 at the top),
     const n = perlin(41);
     return gen(size, (u, v, o) => {
       const a = u * TAU, m = fbm(n, Math.cos(a) * 3 + v * 4, Math.sin(a) * 3, 5) * .5 + .5;
-      let c = mix3(hex('#d9a964'), hex('#9c5722'), smooth(.05, .7, v) * (.8 + .4 * m));
+      let c = mix3(hex('#d4a060'), hex('#8a4a1a'), smooth(.05, .7, v) * (.8 + .4 * m));
+      c = mix3(c, hex('#efe2c8'), smooth(.55, .8, fbm(n, a * 2 + 11, v * 9, 3) * .5 + .5) * .35 * smooth(.4, .9, v));   // flour dusting
       o.c = c; o.h = m * .5; o.r = .45 + .3 * (1 - v);
     }, { normal: 2, rough: true, repeat: true });
   });
@@ -158,13 +160,26 @@ function pastramiTex(size = 512) {   // deep red slices with a peppery, dark edg
 }
 
 /* ================= materials ================= */
+function eggTex(size = 512) {
+  return cached('eggT', () => {
+    const n = perlin(171), W = worley(172);
+    return gen(size, (u, v, o) => {
+      const m = fbm(n, u * 5, v * 5, 5) * .5 + .5, fold = Math.pow(Math.abs(Math.sin((u * 2.2 + n(u * 2, v * 2) * .5) * Math.PI)), 26);
+      const [d1] = W(u * 14, v * 14), brown = (1 - smooth(.05, .3, d1)) * smooth(.62, .8, m);
+      let c = mix3(hex('#f1b81e'), hex('#f9d860'), m * .55);
+      c = mix3(c, hex('#fbe7a8'), fold * .55); c = mix3(c, hex('#c98a3a'), brown * .5);
+      o.c = c; o.h = m * .5 - fold * .3; o.r = .5 + .2 * brown;
+    }, { normal: 2.5, rough: true });
+  });
+}
 export const BM = {
-  crust: (kind) => M('crust' + kind, () => { const t = crustTex(kind); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.1, 1.1), roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .55, clearcoatRoughness: .28, sheen: .45, sheenRoughness: .5, sheenColor: new THREE.Color('#ffc98a') }); }),
+  egg: () => M('eggB', () => { const t = eggTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughnessMap: t.roughnessMap, roughness: 1, sheen: .5, sheenColor: new THREE.Color('#fff2a0'), clearcoat: .2, clearcoatRoughness: .4 }); }),
+  crust: (kind) => M('crust' + kind, () => { const t = crustTex(kind); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.1, 1.1), roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .55, clearcoatRoughness: .28, clearcoatNormalMap: crustDetail(2), clearcoatNormalScale: new THREE.Vector2(.8, .8), sheen: .45, sheenRoughness: .5, sheenColor: new THREE.Color('#ffc98a') }); }),
   crumb: () => M('crumb', () => { const t = crumbTex(); t.map.repeat.set(2, 2); t.normalMap.repeat.set(2, 2); return new THREE.MeshStandardMaterial({ map: t.map, normalMap: t.normalMap, roughness: .85 }); }),
-  bun: () => M('bun', () => { const t = bunTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .3, clearcoatRoughness: .4, sheen: .3, sheenColor: new THREE.Color('#ffd09a') }); }),
+  bun: () => M('bun', () => { const t = bunTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: crustDetail(2), normalScale: new THREE.Vector2(1.2, 1.2), clearcoatNormalMap: crustDetail(2), roughnessMap: t.roughnessMap, roughness: 1, clearcoat: .3, clearcoatRoughness: .4, sheen: .3, sheenColor: new THREE.Color('#ffd09a') }); }),
   creamCheese: (k = 'plain') => M('cc' + k, () => { const t = creamTex(k); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.3, 1.3), roughness: .38, sheen: .6, sheenColor: new THREE.Color('#ffffff'), sheenRoughness: .5, clearcoat: .25, clearcoatRoughness: .3 }); }),
   lox: () => M('lox', () => { const t = stripeTex('lox', '#f07a4c', '#ffd2b8', 9, 256, .5); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughness: .3, clearcoat: .7, clearcoatRoughness: .15, sheen: .4, sheenColor: new THREE.Color('#ffb08a'), side: THREE.DoubleSide, transmission: .0 }); }),
-  bacon: () => M('bacon', () => { const t = stripeTex('bacon', '#8e2a16', '#e8b48a', 6, 256, .9); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.6, 1.6), roughness: .38, clearcoat: .6, clearcoatRoughness: .25, side: THREE.DoubleSide }); }),
+  bacon: () => M('bacon', () => { const t = stripeTex('bacon2', '#6e2010', '#d49a6a', 4, 256, 1.4); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.6, 1.6), roughness: .38, clearcoat: .6, clearcoatRoughness: .25, side: THREE.DoubleSide }); }),
   american: () => M('american', () => new THREE.MeshPhysicalMaterial({ color: '#f2a634', roughness: .3, clearcoat: .6, clearcoatRoughness: .2, sheen: .4, sheenColor: new THREE.Color('#ffd27a'), side: THREE.DoubleSide })),
   lettuce: () => M('lettuce', () => { const t = lettuceTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, normalScale: new THREE.Vector2(1.5, 1.5), roughness: .4, clearcoat: .5, clearcoatRoughness: .3, sheen: .4, sheenColor: new THREE.Color('#d8ff9a'), side: THREE.DoubleSide }); }),
   taylor: () => M('taylor', () => { const t = taylorTex(); return new THREE.MeshPhysicalMaterial({ map: t.map, normalMap: t.normalMap, roughness: .42, clearcoat: .45, clearcoatRoughness: .3, sheen: .3, side: THREE.DoubleSide }); }),
@@ -296,6 +311,31 @@ export function bagelPart(flavor, part, seed, lite) {
 
 /* ================= fillings ================= */
 // a soft disc with a wavy, slightly drooping edge (egg, cream cheese, lettuce, turkey)
+export function puck(key, R, H, rIn = 0, amp = .05, freq = 5, seed = 1) {
+  return GC('puck' + key, () => {
+    const prof = [];
+    const K = 18;
+    if (rIn > 0) for (let i = 0; i <= K; i++) { const a = i / K * Math.PI / 2; prof.push([rIn + H * .6 * (1 - Math.sin(a)), H * (1 - Math.cos(a)) * .9]); }
+    else prof.push([0, H]);
+    // mounded top falling to a rounded rim
+    for (let i = 0; i <= 24; i++) { const t = i / 24, x = (rIn || 0) + ((R - H * .6) - (rIn || 0)) * t; prof.push([x, H * (1 - .25 * Math.pow(Math.abs(t * 2 - 1), 2))]); }
+    for (let i = 0; i <= K; i++) { const a = i / K * Math.PI / 2; prof.push([R - H * .6 + H * .6 * Math.sin(a), H * .75 * Math.cos(a)]); }
+    prof.push([R - .02, 0]);
+    if (rIn > 0) prof.unshift([rIn + H * .6, 0]); else prof.push([0, 0]);
+    const g = new THREE.LatheGeometry(prof.reverse().map(([x, y]) => new THREE.Vector2(Math.max(0, x), y)), 128);
+    const pp = g.attributes.position, uv = g.attributes.uv, n = perlin(seed);
+    for (let i = 0; i < pp.count; i++) {
+      const x = pp.getX(i), z = pp.getZ(i), rr = Math.hypot(x, z); if (rr < 1e-4) { uv.setXY(i, .5, .5); continue; }
+      const a = Math.atan2(z, x), w = 1 + amp * (Math.sin(a * freq + 2 * n(Math.cos(a) * 2, Math.sin(a) * 2)) * .5 + .6 * n(Math.cos(a) * 4 + 7, Math.sin(a) * 4));
+      const k = rr > (rIn || 0) + .05 ? w : 1;
+      pp.setX(i, x * k); pp.setZ(i, z * k);
+      pp.setY(i, pp.getY(i) * (1 + .25 * n(x * 3, z * 3)));
+      uv.setXY(i, x * k * .5 + .5, z * k * .5 + .5);
+    }
+    g.computeVertexNormals();
+    return g;
+  });
+}
 export function softDisc(key, R, thick, amp, freq, droop = 0, seed = 1) {
   return GC('disc' + key, () => {
     const g = new THREE.CylinderGeometry(R, R, thick, 96, 2, false), p = g.attributes.position, n = perlin(seed), v = new THREE.Vector3();
@@ -329,24 +369,24 @@ export function ribbon(key, L, Wd, waves, amp, curl = 0) {
 function addLayer(stack, obj, h) { obj.position.y += stack.y + h / 2; stack.g.add(obj); stack.y += h; return obj; }
 
 export const FILL = {
-  cream(st, r) { const o = mesh(softDisc('cc2', 1.0, .09, .045, 5, .03, 4), BM.creamCheese()); o.rotation.y = r() * 6; addLayer(st, o, .08); },
-  creamScallion(st, r) { const o = mesh(softDisc('ccs2', 1.0, .09, .045, 5, .03, 5), BM.creamCheese('scallion')); o.rotation.y = r() * 6; addLayer(st, o, .08); },
+  cream(st, r) { const o = mesh(puck('cc3', .98, .1, .36, .05, 5, 4), BM.creamCheese()); o.rotation.y = r() * 6; addLayer(st, o, .09); },
+  creamScallion(st, r) { const o = mesh(puck('ccs3', .98, .1, .36, .05, 5, 5), BM.creamCheese('scallion')); o.rotation.y = r() * 6; addLayer(st, o, .09); },
   taylor(st, r) {
     for (let i = 0; i < 2; i++) { const o = mesh(GC('taylorG', () => { const g = softDisc('tay', .78, .05, .05, 4, .015, 33).clone(); const p = g.attributes.position; for (let k = 0; k < p.count; k++) { const x = p.getX(k), z = p.getZ(k), rr = Math.hypot(x, z), a = Math.atan2(z, x); if (rr > .6) { const notch = Math.pow(Math.abs(Math.cos(a * 2)), 40); p.setX(k, x * (1 - notch * .14)); p.setZ(k, z * (1 - notch * .14)); } } g.computeVertexNormals(); return g; }), BM.taylor()); o.position.set((i - .5) * .45, st.y + .03 + i * .045, (i - .5) * .2); o.rotation.set((i - .5) * .1, i * .8, 0); st.g.add(o); }
     st.y += .1;
   },
   pastrami(st, r) {
-    for (let i = 0; i < 9; i++) { const o = mesh(ribbon('pastrami' + (i % 3), 1.9, .5, 1.6 + (i % 3) * .5, .09, .5), BM.pastrami()); o.rotation.y = i * .7 + r() * .3; o.position.set((r() - .5) * .25, st.y + .05 + i * .045, (r() - .5) * .25); st.g.add(o); }
+    for (let i = 0; i < 9; i++) { const o = mesh(ribbon('pastrami' + (i % 3), 1.35, .55, 2.2 + (i % 3) * .6, .12, .7), BM.pastrami()); o.rotation.set((r() - .5) * .5, r() * 6, (r() - .5) * .4); const a = r() * 6, d = r() * .4; o.position.set(Math.cos(a) * d, st.y + .06 + i * .04, Math.sin(a) * d); st.g.add(o); }
     st.y += .42;
   },
-  creamThin(st, r) { const o = mesh(softDisc('cct2', .98, .06, .04, 6, .02, 6), BM.creamCheese()); o.rotation.y = r() * 6; addLayer(st, o, .05); },
+  creamThin(st, r) { const o = mesh(puck('cct3', .96, .06, .36, .04, 6, 6), BM.creamCheese()); o.rotation.y = r() * 6; addLayer(st, o, .055); },
   lox(st, r) {
     for (let i = 0; i < 3; i++) {
       const o = mesh(ribbon('lox', 1.45, .5, 2.2, .05, .3), BM.lox()); o.rotation.y = i * .8 + r() * .4; const a = i * 1.6; o.position.set(Math.cos(a) * .3, st.y + .05 + i * .03, Math.sin(a) * .3); st.g.add(o);
     }
     st.y += .13;
   },
-  egg(st, r) { const o = mesh(softDisc('egg', .98, .14, .1, 5, .04, 9), mats.egg()); addLayer(st, o, .13); },
+  egg(st, r) { const o = mesh(puck('egg4', 1.0, .15, 0, .08, 4, 9), BM.egg()); o.rotation.y = r() * 6; addLayer(st, o, .14); },
   cheese(st, r) { const o = mesh(cheeseSlice(), BM.american()); o.rotation.y = .4 + r() * .3; addLayer(st, o, .02); },
   bacon(st, r) {
     for (let i = 0; i < 3; i++) { const o = mesh(ribbon('bacon' + (i % 2), 2.4, .3, 4, .05), BM.bacon()); o.rotation.y = -.5 + i * .5 + (r() - .5) * .2; o.position.set(0, st.y + .04 + i * .018, (i - 1) * .2); st.g.add(o); }
@@ -405,11 +445,11 @@ export function buildSandwich(rc, opts = {}) {
   let bottom, topHalf, cutY;
   if (bread === 'roll') {
     bottom = mesh(GC('rollBot', () => rollGeo(false)), BM.bun()); topHalf = mesh(GC('rollTop', () => rollGeo(true)), BM.bun());
-    const cf = mesh(GC('rollCut', () => { const g = new THREE.CircleGeometry(.99, 64); g.rotateX(-Math.PI / 2); return g; }), BM.crumb(), false, true); cf.position.y = .3; bottom.add(cf);
+    const cf = mesh(GC('rollCut', () => { const g = new THREE.CircleGeometry(.99, 64); g.rotateX(-Math.PI / 2); return g; }), BM.crumb(), false, true); cf.position.y = .306; bottom.add(cf);
     cutY = .3;
   } else {
     bottom = bagelPart(bread, 'bottom', rc.seed || 5, opts.lite); topHalf = bagelPart(bread, 'top', rc.seed || 5, opts.lite);
-    bottom.position.y = -CUT_Y + .34 * SHAPE.base * 0; cutY = CUT_Y;
+    cutY = CUT_Y;
   }
   const hold = new THREE.Group(); hold.position.y = Y0; base.add(hold);
   hold.add(bottom);
@@ -430,7 +470,7 @@ function rollGeo(isTop) {
   else { pts.push([0, 0], [.85, 0], [.97, .05], [1.0, .16], [.99, .3], [0, .3]); }
   const g = new THREE.LatheGeometry(pts.map(p => new THREE.Vector2(p[0], p[1])), 96);
   const p = g.attributes.position, uv = g.attributes.uv;
-  for (let i = 0; i < p.count; i++) uv.setY(i, isTop ? clamp(p.getY(i) / .52) : .02);
+  for (let i = 0; i < p.count; i++) uv.setY(i, isTop ? clamp(p.getY(i) / .52) : clamp(p.getY(i) / .3 * .3));
   return g;
 }
 export function buildWrap(rc, opts = {}) {

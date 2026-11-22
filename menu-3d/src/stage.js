@@ -8,6 +8,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { U } from './mats.js';
+import { studioHDR } from './real.js';
 import { createBackdrop } from './backdrop.js';
 
 const BLUR = (dir) => ({
@@ -61,7 +62,7 @@ export function createStage(canvas, opt = {}) {
   const Q = { pr: opt.fixedPR || Math.min(dpr, 1.5), min: Math.min(dpr, .85), max: Math.min(dpr, phone ? 1.75 : 2), fixed: !!opt.fixedPR, acc: 0, n: 0, t: 0, good: 0, bloomOff: false };
   renderer.setPixelRatio(Q.pr);
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setClearColor('#0c0705');
 
   const scene = new THREE.Scene();
@@ -69,6 +70,7 @@ export function createStage(canvas, opt = {}) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = studioEnv(pmrem);
   scene.environmentIntensity = 1;
+  studioHDR(renderer, scene, .85);   // real photo-studio lighting replaces the generated room once it loads
 
   // backdrop: espresso dark with a mood-coloured glow behind the product and a floor falloff
   const bgU = { uGlow: { value: new THREE.Color('#c46a28') }, uBase: { value: new THREE.Color('#0d0705') }, uGlowAmt: { value: 1 }, uGlowPos: { value: new THREE.Vector2(0, .12) } };
